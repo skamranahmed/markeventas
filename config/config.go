@@ -17,6 +17,14 @@ type Config struct {
 	TwitterGcalEventBotApiKey       string `mapstructure:"TWITTER_CREATE_GCAL_EVENT_BOT_API_KEY"`
 	TwitterGcalEventBotApiKeySecret string `mapstructure:"TWITTER_CREATE_GCAL_EVENT_BOT_API_KEY_SECRET"`
 
+	// Database Credentials
+	DbHost     string `mapstructure:"DB_HOST"`
+	DbUser     string `mapstructure:"DB_USER"`
+	DbName     string `mapstructure:"DB_NAME"`
+	DbPassword string `mapstructure:"DB_PASSWORD"`
+	DbPort     string `mapstructure:"DB_PORT"`
+
+	// Server
 	ServerPort string `mapstructure:"SERVER_PORT"`
 }
 
