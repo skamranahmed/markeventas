@@ -31,5 +31,5 @@ func Run() error {
 		return err
 	}
 
-	return api.RunServer(cfg)
+	return api.RunServer(cfg, db)
 }

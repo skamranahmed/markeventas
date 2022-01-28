@@ -29,28 +29,62 @@ import (
 						 Handler
 	###################################################
 */
-var (
-	db *gorm.DB
-)
 
-var (
-	userRepo    repo.UserRepository = repo.NewUserRepository(db)
-	userService service.UserService = service.NewUserService(userRepo)
-	userHandler handler.UserHandler = handler.NewUserHandler(userService)
-)
+type repos struct {
+	userRepo repo.UserRepository
+}
 
-func RunServer(config *config.Config) error {
+type services struct {
+	userService service.UserService
+}
+
+type handlers struct {
+	userHandler handler.UserHandler
+}
+
+func RunServer(config *config.Config, db *gorm.DB) error {
+	router := InitRoutes(db)
+	port := fmt.Sprintf(":%s", config.ServerPort)
+	return router.Run(port)
+}
+
+func InitRoutes(db *gorm.DB) *gin.Engine {
+	_, _, handlers := setDependencies(db)
 	router := gin.Default()
-
 	router.GET("/", func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"Hello": "World",
 		})
 		return
 	})
+	router.POST("/login", handlers.userHandler.TwitterOAuthLogin)
+	return router
+}
 
-	router.GET("/login", userHandler.TwitterOAuthLogin)
+func setDependencies(db *gorm.DB) (*repos, *services, *handlers) {
+	repos := &repos{}
+	repos.setDependencies(db)
 
-	port := fmt.Sprintf(":%s", config.ServerPort)
-	return router.Run(port)
+	services := &services{}
+	services.setDependencies(repos)
+
+	handlers := &handlers{}
+	handlers.setDependencies(services)
+
+	return repos, services, handlers
+}
+
+func (r *repos) setDependencies(db *gorm.DB) {
+	userRepo := repo.NewUserRepository(db)
+	r.userRepo = userRepo
+}
+
+func (s *services) setDependencies(repos *repos) {
+	userService := service.NewUserService(repos.userRepo)
+	s.userService = userService
+}
+
+func (h *handlers) setDependencies(services *services) {
+	userHandler := handler.NewUserHandler(services.userService)
+	h.userHandler = userHandler
 }
