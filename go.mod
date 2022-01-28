@@ -3,6 +3,8 @@ module github.com/skamranahmed/twitter-create-gcal-event-api
 go 1.17
 
 require (
+	github.com/dghubble/go-twitter v0.0.0-20211115160449-93a8679adecb
+	github.com/dghubble/oauth1 v0.7.1
 	github.com/gin-gonic/gin v1.7.7
 	github.com/golang/glog v1.0.0
 	github.com/mgutz/ansi v0.0.0-20200706080929-d51e80ef957d
@@ -12,12 +14,15 @@ require (
 )
 
 require (
+	github.com/cenkalti/backoff/v4 v4.1.2 // indirect
+	github.com/dghubble/sling v1.4.0 // indirect
 	github.com/fsnotify/fsnotify v1.5.1 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/go-playground/locales v0.13.0 // indirect
 	github.com/go-playground/universal-translator v0.17.0 // indirect
 	github.com/go-playground/validator/v10 v10.4.1 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
+	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/jackc/chunkreader/v2 v2.0.1 // indirect
 	github.com/jackc/pgconn v1.10.1 // indirect
