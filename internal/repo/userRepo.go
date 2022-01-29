@@ -2,7 +2,6 @@ package repo
 
 import (
 	"github.com/skamranahmed/twitter-create-gcal-event-api/internal/models"
-	"github.com/skamranahmed/twitter-create-gcal-event-api/pkg/log"
 	"gorm.io/gorm"
 )
 
@@ -18,14 +17,34 @@ type userRepo struct {
 }
 
 func (ur *userRepo) Create(u *models.User) error {
-	return ur.CreateWithDB(ur.db, u)
+	return ur.createWithDB(ur.db, u)
 }
 
-func (ur *userRepo) CreateWithDB(tx *gorm.DB, u *models.User) error {
+func (ur *userRepo) createWithDB(tx *gorm.DB, u *models.User) error {
 	err := tx.Create(u).Error
 	if err != nil {
-		log.Errorf("unable to create user record in db, error: %v", err)
 		return err
 	}
 	return nil
+}
+
+func (ur *userRepo) Save(u *models.User) error {
+	return ur.saveWithDB(ur.db, u)
+}
+
+func (ur *userRepo) saveWithDB(tx *gorm.DB, u *models.User) error {
+	err := tx.Save(u).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (ur *userRepo) FindByTwitterID(twitterID string) (*models.User, error) {
+	user := &models.User{}
+	err := ur.db.Where("twitter_id = ?", twitterID).First(&user).Error
+	if err != nil {
+		return nil, err
+	}
+	return user, nil
 }

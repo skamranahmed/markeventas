@@ -8,7 +8,9 @@ import (
 
 type UserService interface {
 	Create(u *models.User) error
+	Save(u *models.User) error
 	LoginWithTwitter() (string, error)
 	FetchTwitterOAuthToken(requestToken, requestSecret, verifier string) (*oauth1.Token, error)
 	GetUserDetailsFromTwitter(token *oauth1.Token) (*twitter.User, error)
+	DoesUserAlreadyExist(twitterID string) (bool, *models.User, error)
 }
