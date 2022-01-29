@@ -90,11 +90,21 @@ func (uh *userHandler) HandleTwitterOAuthCallback(c *gin.Context) {
 			}
 		}
 
-		// TODO: generate jwt token and embed the user details in the token payload
-		c.JSON(http.StatusOK, gin.H{
-			"twitter_id":  twitterUser.ID,
-			"screen_name": twitterUser.ScreenName,
-		})
+		// generate jwt token
+		userToken, err := uh.service.CreateToken(user.ID, user.TwitterID)
+		if err != nil {
+			log.Errorf("unable to create user token, error: %s", err)
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
+
+		resp := &TwitterOAuthCallbackResponse{
+			AccessToken: userToken,
+			TwitterID:   user.TwitterID,
+			ScreenName:  user.TwitterScreenName,
+		}
+
+		c.JSON(http.StatusOK, resp)
 		return
 	}
 
@@ -114,9 +124,20 @@ func (uh *userHandler) HandleTwitterOAuthCallback(c *gin.Context) {
 
 	log.Infof("✅ successfuly created new user record for twitterID: %s, userRecord: %+v", twitterUser.IDStr, user)
 
-	c.JSON(http.StatusOK, gin.H{
-		"twitter_id":  user.TwitterID,
-		"screen_name": user.TwitterScreenName,
-	})
+	// generate jwt token
+	userToken, err := uh.service.CreateToken(user.ID, user.TwitterID)
+	if err != nil {
+		log.Errorf("unable to create user token, error: %s", err)
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	resp := &TwitterOAuthCallbackResponse{
+		AccessToken: userToken,
+		TwitterID:   user.TwitterID,
+		ScreenName:  user.TwitterScreenName,
+	}
+
+	c.JSON(http.StatusOK, resp)
 	return
 }
