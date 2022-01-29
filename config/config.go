@@ -24,6 +24,8 @@ type Config struct {
 	DbPassword string `mapstructure:"DB_PASSWORD"`
 	DbPort     string `mapstructure:"DB_PORT"`
 
+	TokenSecretSigningKey string `mapstructure:"TOKEN_SECRET_SIGNING_KEY"`
+
 	// Server
 	ServerPort string `mapstructure:"SERVER_PORT"`
 }

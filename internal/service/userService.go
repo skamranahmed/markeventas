@@ -9,26 +9,33 @@ import (
 	"github.com/skamranahmed/twitter-create-gcal-event-api/config"
 	"github.com/skamranahmed/twitter-create-gcal-event-api/internal/models"
 	"github.com/skamranahmed/twitter-create-gcal-event-api/internal/repo"
+	"github.com/skamranahmed/twitter-create-gcal-event-api/internal/token"
 	"github.com/skamranahmed/twitter-create-gcal-event-api/pkg/log"
 	"github.com/skamranahmed/twitter-create-gcal-event-api/pkg/twitterClient"
 	"gorm.io/gorm"
 )
 
 // NewUserService : returns a userService struct that implements the UserService interface
-func NewUserService(userRepo repo.UserRepository, config *config.Config) UserService {
+func NewUserService(userRepo repo.UserRepository, config *config.Config, tokenMaker token.Maker) UserService {
 	return &userService{
-		repo:   userRepo,
-		config: config,
+		repo:       userRepo,
+		config:     config,
+		tokenMaker: tokenMaker,
 	}
 }
 
 type userService struct {
-	repo   repo.UserRepository
-	config *config.Config
+	repo       repo.UserRepository
+	config     *config.Config
+	tokenMaker token.Maker
 }
 
 func (us *userService) Create(u *models.User) error {
 	return us.repo.Create(u)
+}
+
+func (us *userService) CreateToken(userID uint, twitterID string) (string, error) {
+	return us.tokenMaker.CreateToken(userID, twitterID)
 }
 
 func (us *userService) Save(u *models.User) error {

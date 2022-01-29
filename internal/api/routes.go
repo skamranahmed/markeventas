@@ -6,7 +6,12 @@ import (
 	handler "github.com/skamranahmed/twitter-create-gcal-event-api/internal/api/handlers/userHandler"
 	"github.com/skamranahmed/twitter-create-gcal-event-api/internal/repo"
 	"github.com/skamranahmed/twitter-create-gcal-event-api/internal/service"
+	"github.com/skamranahmed/twitter-create-gcal-event-api/internal/token"
 	"gorm.io/gorm"
+)
+
+var (
+	tokenMaker token.Maker
 )
 
 type repos struct {
@@ -22,6 +27,7 @@ type handlers struct {
 }
 
 func InitRoutes(db *gorm.DB, config *config.Config) *gin.Engine {
+	tokenMaker = token.NewJwtTokenMaker(config.TokenSecretSigningKey)
 	_, _, handlers := setDependencies(db, config)
 	router := gin.Default()
 	router.GET("/", func(c *gin.Context) {
@@ -54,7 +60,7 @@ func (r *repos) setDependencies(db *gorm.DB) {
 }
 
 func (s *services) setDependencies(repos *repos, config *config.Config) {
-	userService := service.NewUserService(repos.userRepo, config)
+	userService := service.NewUserService(repos.userRepo, config, tokenMaker)
 	s.userService = userService
 }
 
