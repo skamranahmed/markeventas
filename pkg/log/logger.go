@@ -43,6 +43,12 @@ func Warning(args ...interface{}) {
 	glog.WarningDepth(CallingDepth, getColorString(WarningColor), args)
 }
 
+// Warning : Wrapper around glog Warning
+func Warningf(formatString string, args ...interface{}) {
+	msg := fmt.Sprintf(formatString, args...)
+	glog.WarningDepth(CallingDepth, getColorString(WarningColor), msg)
+}
+
 // Error : Wrapper around glog Error
 func Error(args ...interface{}) {
 	colorString := getColorString(ErrorColor)
