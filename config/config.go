@@ -16,9 +16,19 @@ type Config struct {
 	// Twitter Gcal Event Bot Credentials
 	TwitterGcalEventBotApiKey       string `mapstructure:"TWITTER_CREATE_GCAL_EVENT_BOT_API_KEY"`
 	TwitterGcalEventBotApiKeySecret string `mapstructure:"TWITTER_CREATE_GCAL_EVENT_BOT_API_KEY_SECRET"`
+
+	// Database Credentials
+	DbHost     string `mapstructure:"DB_HOST"`
+	DbUser     string `mapstructure:"DB_USER"`
+	DbName     string `mapstructure:"DB_NAME"`
+	DbPassword string `mapstructure:"DB_PASSWORD"`
+	DbPort     string `mapstructure:"DB_PORT"`
+
+	// Server
+	ServerPort string `mapstructure:"SERVER_PORT"`
 }
 
-func LoadConfig() (Config, error) {
+func LoadConfig() (*Config, error) {
 	// provide the config file name
 	viper.SetConfigName("localConfig")
 
@@ -39,9 +49,9 @@ func LoadConfig() (Config, error) {
 	// this will override the values for that specific env var mentioned in the config file
 	viper.AutomaticEnv()
 
-	var config Config
-	err = viper.Unmarshal(&config)
-	return config, err
+	var conf Config
+	err = viper.Unmarshal(&conf)
+	return &conf, err
 }
 
 func getConfigFilePath() (string, error) {
