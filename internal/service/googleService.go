@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"net/http"
+	"time"
 
 	"github.com/skamranahmed/twitter-create-gcal-event-api/config"
 	"github.com/skamranahmed/twitter-create-gcal-event-api/internal/models"
@@ -28,7 +29,7 @@ func NewGoogleService(userID uint, code string, tokenRepo repo.TokenRepository, 
 	clientSecret := []byte(config.GoogleAppClientSecret)
 	oAuth2Config, err := google.ConfigFromJSON(clientSecret, calendar.CalendarScope)
 	if err != nil {
-		log.Errorf("Unable to parse client secret file to config: %v", err)
+		log.Errorf("unable to parse client secret file to config: %v", err)
 		return nil, errors.New(err.Error())
 	}
 
@@ -36,32 +37,32 @@ func NewGoogleService(userID uint, code string, tokenRepo repo.TokenRepository, 
 	service.tokenRepo = tokenRepo
 	service.oAuth2Config = oAuth2Config
 
-	var token *oauth2.Token
+	var googleOAuth2Token *oauth2.Token
 
 	if code == "" {
 		// fetch the token from db
-		token, err = service.GetUserTokenFromDB(userID)
+		googleOAuth2Token, _, err = service.GetUserTokenFromDB(userID)
 		if err != nil {
 			return nil, err
 		}
 	} else {
 		// get token from web and then create a new token record in the db for future use
-		token, err = service.GetUserTokenFromWeb(userID, code)
+		googleOAuth2Token, err = service.GetUserTokenFromWeb(userID, code)
 		if err != nil {
 			return nil, err
 		}
 
 		// TODO: handle token save error
-		_ = service.SaveUserToken(token, userID)
+		_ = service.SaveUserToken(googleOAuth2Token, userID)
 	}
 
 	// init the http client for googleService
-	service.client = oAuth2Config.Client(context.Background(), token)
+	service.client = oAuth2Config.Client(context.Background(), googleOAuth2Token)
 
 	// init the calendar service
 	calendarService, err := calendar.NewService(ctx, option.WithHTTPClient(service.client))
 	if err != nil {
-		log.Errorf("Unable to retrieve Calendar client: %v", err)
+		log.Errorf("unable to retrieve Calendar client: %v", err)
 		return nil, err
 	}
 
@@ -82,15 +83,15 @@ func (g *googleService) GetUserTokenFromWeb(userID uint, code string) (*oauth2.T
 	return token, nil
 }
 
-func (g *googleService) GetUserTokenFromDB(userID uint) (*oauth2.Token, error) {
+func (g *googleService) GetUserTokenFromDB(userID uint) (*oauth2.Token, *models.Token, error) {
 	token, err := g.tokenRepo.GetUserToken(userID)
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			log.Infof("google token for userID: %d, not found in DB", userID)
-			return nil, err
+			return nil, nil, err
 		}
 		log.Errorf("unable to get google token for userID: %d from the DB, error:%v", userID, err)
-		return nil, err
+		return nil, nil, err
 	}
 
 	googleOAuth2Token := &oauth2.Token{
@@ -100,20 +101,47 @@ func (g *googleService) GetUserTokenFromDB(userID uint) (*oauth2.Token, error) {
 		Expiry:       token.ExpiresAt,
 	}
 
-	return googleOAuth2Token, nil
+	return googleOAuth2Token, token, nil
 }
 
-func (g *googleService) SaveUserToken(googleToken *oauth2.Token, userID uint) error {
-	token := &models.Token{
-		UserID:       userID,
-		AccessToken:  googleToken.AccessToken,
-		RefreshToken: googleToken.RefreshToken,
-		ExpiresAt:    googleToken.Expiry,
-	}
-	err := g.tokenRepo.Create(token)
+func (g *googleService) SaveUserToken(googleOAuth2Token *oauth2.Token, userID uint) error {
+	// fetch the token from db
+	_, existingTokenRecord, err := g.GetUserTokenFromDB(userID)
 	if err != nil {
-		log.Errorf("unable to save google token: %+v, for userID: %d, error: %v", token, userID, err)
+		// if no existing token found, then create a new token record
+		if err == gorm.ErrRecordNotFound {
+			newTokenRecord := &models.Token{
+				UserID:       userID,
+				AccessToken:  googleOAuth2Token.AccessToken,
+				RefreshToken: googleOAuth2Token.RefreshToken,
+				ExpiresAt:    googleOAuth2Token.Expiry,
+			}
+			log.Infof("google token not found in DB for userID: %d | creating a new token record: %+v", userID, newTokenRecord)
+			err := g.tokenRepo.Create(newTokenRecord)
+			if err != nil {
+				log.Errorf("unable to create google token record in db: %+v, for userID: %d, error: %v", newTokenRecord, userID, err)
+				return err
+			}
+			return nil
+		}
+		log.Errorf("unable to query db for token record of userID: %d, error: %v", userID, err)
 		return err
 	}
+
+	log.Infof("google token found in DB for userID: %d, tokenRecord: %+v", userID, existingTokenRecord)
+
+	// if a token already exists in db then update the record
+	existingTokenRecord.UpdatedAt = time.Now()
+	existingTokenRecord.AccessToken = googleOAuth2Token.AccessToken
+	existingTokenRecord.RefreshToken = googleOAuth2Token.RefreshToken
+	existingTokenRecord.ExpiresAt = googleOAuth2Token.Expiry
+
+	err = g.tokenRepo.Save(existingTokenRecord)
+	if err != nil {
+		log.Errorf("unable to update google token record in db: %+v, for userID: %d, error: %v", existingTokenRecord, userID, err)
+		return err
+	}
+
+	log.Infof("✅ successfully updated the existing google token record: %+v, for userID: %d", existingTokenRecord, userID)
 	return nil
 }

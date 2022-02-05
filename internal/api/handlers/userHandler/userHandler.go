@@ -1,9 +1,7 @@
 package handler
 
 import (
-	"fmt"
 	"net/http"
-	"time"
 
 	"github.com/skamranahmed/twitter-create-gcal-event-api/internal/token"
 
@@ -128,7 +126,7 @@ func (uh *userHandler) HandleTwitterOAuthCallback(c *gin.Context) {
 		return
 	}
 
-	log.Infof("✅ successfuly created new user record for twitterID: %s, userRecord: %+v", twitterUser.IDStr, user)
+	log.Infof("✅ successfully created new user record for twitterID: %s, userRecord: %+v", twitterUser.IDStr, user)
 
 	// generate jwt token
 	userToken, err := uh.service.CreateToken(user.ID, user.TwitterID)
@@ -173,28 +171,29 @@ func (uh *userHandler) SaveGoogleCalendarRefreshToken(c *gin.Context) {
 
 	userID := authToken.UserID
 
-	googleService, err := uh.service.GetUserCalendarService(userID, requestPayload.Code)
+	_, err = uh.service.GetUserCalendarService(userID, requestPayload.Code)
+	// TODO: error Handling
 	// googleService, err := uh.service.GetUserCalendarService(userID, "")
-	calendarService := googleService.CalendarService()
+	// calendarService := googleService.CalendarService()
 
-	t := time.Now().Format(time.RFC3339)
-	events, err := calendarService.Events.List("primary").ShowDeleted(false).
-		SingleEvents(true).TimeMin(t).MaxResults(10).OrderBy("startTime").Do()
-	if err != nil {
-		log.Errorf("Unable to retrieve next ten of the user's events: %v", err)
-	}
-	fmt.Println("Upcoming events:")
-	if len(events.Items) == 0 {
-		fmt.Println("No upcoming events found.")
-	} else {
-		for _, item := range events.Items {
-			date := item.Start.DateTime
-			if date == "" {
-				date = item.Start.Date
-			}
-			fmt.Printf("%v (%v)\n", item.Summary, date)
-		}
-	}
+	// t := time.Now().Format(time.RFC3339)
+	// events, err := calendarService.Events.List("primary").ShowDeleted(false).
+	// 	SingleEvents(true).TimeMin(t).MaxResults(10).OrderBy("startTime").Do()
+	// if err != nil {
+	// 	log.Errorf("Unable to retrieve next ten of the user's events: %v", err)
+	// }
+	// fmt.Println("Upcoming events:")
+	// if len(events.Items) == 0 {
+	// 	fmt.Println("No upcoming events found.")
+	// } else {
+	// 	for _, item := range events.Items {
+	// 		date := item.Start.DateTime
+	// 		if date == "" {
+	// 			date = item.Start.Date
+	// 		}
+	// 		fmt.Printf("%v (%v)\n", item.Summary, date)
+	// 	}
+	// }
 
 	c.Status(http.StatusOK)
 	return
