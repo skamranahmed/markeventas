@@ -13,5 +13,11 @@ func Migrate(db *gorm.DB) error {
 		log.Errorf("unable to migrate User table, error: %v", err)
 		return err
 	}
+	log.Info("creating Token table")
+	err = db.AutoMigrate(models.Token{})
+	if err != nil {
+		log.Errorf("unable to migrate User table, error: %v", err)
+		return err
+	}
 	return nil
 }

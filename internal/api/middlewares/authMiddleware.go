@@ -16,7 +16,7 @@ const (
 	AuthorizationPayloadKey  = "AuthorizationPayload"
 )
 
-func authMiddleware(tokenMaker token.Maker) gin.HandlerFunc {
+func AuthMiddleware(tokenMaker token.Maker) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authorizationHeader := c.GetHeader(AuthorizationHeaderKey)
 		if len(authorizationHeader) == 0 {

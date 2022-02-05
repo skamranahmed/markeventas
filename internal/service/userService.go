@@ -16,22 +16,37 @@ import (
 )
 
 // NewUserService : returns a userService struct that implements the UserService interface
-func NewUserService(userRepo repo.UserRepository, config *config.Config, tokenMaker token.Maker) UserService {
+func NewUserService(userRepo repo.UserRepository, tokenRepo repo.TokenRepository, config *config.Config, tokenMaker token.Maker) UserService {
 	return &userService{
-		repo:       userRepo,
+		userRepo:   userRepo,
+		tokenRepo:  tokenRepo,
 		config:     config,
 		tokenMaker: tokenMaker,
 	}
 }
 
 type userService struct {
-	repo       repo.UserRepository
+	userRepo   repo.UserRepository
+	tokenRepo  repo.TokenRepository
 	config     *config.Config
 	tokenMaker token.Maker
 }
 
+func (us *userService) GetUserCalendarService(userID uint, code string) (GoogleService, error) {
+	googleService, err := NewGoogleService(userID, code, us.tokenRepo, us.config)
+	if err != nil {
+		log.Errorf("unable to init google service for userID: %d, error: %v", userID, err)
+		return nil, err
+	}
+	return googleService, nil
+}
+
 func (us *userService) Create(u *models.User) error {
-	return us.repo.Create(u)
+	return us.userRepo.Create(u)
+}
+
+func (us *userService) SaveGoogleToken(u *models.Token) error {
+	return us.tokenRepo.Save(u)
 }
 
 func (us *userService) CreateToken(userID uint, twitterID string) (string, error) {
@@ -39,11 +54,11 @@ func (us *userService) CreateToken(userID uint, twitterID string) (string, error
 }
 
 func (us *userService) Save(u *models.User) error {
-	return us.repo.Save(u)
+	return us.userRepo.Save(u)
 }
 
 func (us *userService) DoesUserAlreadyExist(twitterID string) (bool, *models.User, error) {
-	user, err := us.repo.FindByTwitterID(twitterID)
+	user, err := us.userRepo.FindByTwitterID(twitterID)
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			log.Warningf("user with twitterID: %s, does not exist in our db", twitterID)

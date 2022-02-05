@@ -10,3 +10,9 @@ type UserRepository interface {
 	Save(u *models.User) error
 	FindByTwitterID(twitterID string) (*models.User, error)
 }
+
+type TokenRepository interface {
+	Create(u *models.Token) error
+	GetUserToken(userID uint) (*models.Token, error)
+	Save(u *models.Token) error
+}

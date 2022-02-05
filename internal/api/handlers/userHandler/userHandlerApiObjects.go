@@ -10,3 +10,7 @@ type TwitterOAuthCallbackResponse struct {
 	TwitterID   string `json:"twitter_id"`
 	ScreenName  string `json:"screen_name"`
 }
+
+type GoogleApiCodePayload struct {
+	Code string `json:"code" binding:"required"`
+}
