@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/skamranahmed/twitter-create-gcal-event-api/config"
 	handler "github.com/skamranahmed/twitter-create-gcal-event-api/internal/api/handlers/userHandler"
+	"github.com/skamranahmed/twitter-create-gcal-event-api/internal/api/middlewares"
 	"github.com/skamranahmed/twitter-create-gcal-event-api/internal/repo"
 	"github.com/skamranahmed/twitter-create-gcal-event-api/internal/service"
 	"github.com/skamranahmed/twitter-create-gcal-event-api/internal/token"
@@ -15,7 +16,8 @@ var (
 )
 
 type repos struct {
-	userRepo repo.UserRepository
+	userRepo  repo.UserRepository
+	tokenRepo repo.TokenRepository
 }
 
 type services struct {
@@ -38,6 +40,12 @@ func InitRoutes(db *gorm.DB, config *config.Config) *gin.Engine {
 	})
 	router.GET("/api/login", handlers.userHandler.TwitterOAuthLogin)
 	router.POST("/api/twitter/callback", handlers.userHandler.HandleTwitterOAuthCallback)
+
+	authorized := router.Group("/api/google/calendar")
+	authorized.Use(middlewares.AuthMiddleware(tokenMaker))
+	{
+		authorized.POST("/auth-code", handlers.userHandler.SaveGoogleCalendarRefreshToken)
+	}
 	return router
 }
 
@@ -57,10 +65,13 @@ func setDependencies(db *gorm.DB, config *config.Config) (*repos, *services, *ha
 func (r *repos) setDependencies(db *gorm.DB) {
 	userRepo := repo.NewUserRepository(db)
 	r.userRepo = userRepo
+
+	tokenRepo := repo.NewTokenRepository(db)
+	r.tokenRepo = tokenRepo
 }
 
 func (s *services) setDependencies(repos *repos, config *config.Config) {
-	userService := service.NewUserService(repos.userRepo, config, tokenMaker)
+	userService := service.NewUserService(repos.userRepo, repos.tokenRepo, config, tokenMaker)
 	s.userService = userService
 }
 

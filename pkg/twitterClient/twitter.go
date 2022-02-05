@@ -85,7 +85,7 @@ func (t *twitterOAuthClient) GetUser(token *oauth1.Token) (*twitter.User, error)
 		SkipStatus:      twitter.Bool(true),
 		IncludeEmail:    twitter.Bool(false),
 	}
-	
+
 	user, resp, err := twitterClient.Accounts.VerifyCredentials(accountVerifyParams)
 	if err != nil {
 		log.Errorf("unable to verify credentials of the user, error: %v, responseCode: %d", err, resp.StatusCode)

@@ -1,12 +1,17 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
+	"time"
+
+	"github.com/skamranahmed/twitter-create-gcal-event-api/internal/token"
 
 	"github.com/dghubble/oauth1"
 
 	"github.com/gin-gonic/gin"
 	"github.com/skamranahmed/twitter-create-gcal-event-api/config"
+	"github.com/skamranahmed/twitter-create-gcal-event-api/internal/api/middlewares"
 	"github.com/skamranahmed/twitter-create-gcal-event-api/internal/models"
 	"github.com/skamranahmed/twitter-create-gcal-event-api/internal/service"
 	"github.com/skamranahmed/twitter-create-gcal-event-api/pkg/log"
@@ -15,6 +20,7 @@ import (
 type UserHandler interface {
 	TwitterOAuthLogin(c *gin.Context)
 	HandleTwitterOAuthCallback(c *gin.Context)
+	SaveGoogleCalendarRefreshToken(c *gin.Context)
 }
 
 func NewUserHandler(userService service.UserService, config *config.Config) UserHandler {
@@ -139,5 +145,57 @@ func (uh *userHandler) HandleTwitterOAuthCallback(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, resp)
+	return
+}
+
+func (uh *userHandler) SaveGoogleCalendarRefreshToken(c *gin.Context) {
+	// extract the payload from the context that was set by the AuthMiddleware
+	authPayload, exists := c.Get(middlewares.AuthorizationPayloadKey)
+	if !exists {
+		log.Errorf("authorization payload is not present")
+		c.AbortWithStatus(http.StatusUnauthorized)
+		return
+	}
+
+	authToken, ok := authPayload.(*token.Payload)
+	if !ok {
+		log.Errorf("invalid authorization payload, got payload: %+v", authPayload)
+		c.AbortWithStatus(http.StatusUnauthorized)
+		return
+	}
+
+	var requestPayload GoogleApiCodePayload
+	err := c.ShouldBindJSON(&requestPayload)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	userID := authToken.UserID
+
+	googleService, err := uh.service.GetUserCalendarService(userID, requestPayload.Code)
+	// googleService, err := uh.service.GetUserCalendarService(userID, "")
+	calendarService := googleService.CalendarService()
+
+	t := time.Now().Format(time.RFC3339)
+	events, err := calendarService.Events.List("primary").ShowDeleted(false).
+		SingleEvents(true).TimeMin(t).MaxResults(10).OrderBy("startTime").Do()
+	if err != nil {
+		log.Errorf("Unable to retrieve next ten of the user's events: %v", err)
+	}
+	fmt.Println("Upcoming events:")
+	if len(events.Items) == 0 {
+		fmt.Println("No upcoming events found.")
+	} else {
+		for _, item := range events.Items {
+			date := item.Start.DateTime
+			if date == "" {
+				date = item.Start.Date
+			}
+			fmt.Printf("%v (%v)\n", item.Summary, date)
+		}
+	}
+
+	c.Status(http.StatusOK)
 	return
 }

@@ -26,6 +26,8 @@ type Config struct {
 
 	TokenSecretSigningKey string `mapstructure:"TOKEN_SECRET_SIGNING_KEY"`
 
+	GoogleAppClientSecret string `mapstructure:"GOOGLE_APP_CLIENT_SECRET"`
+
 	// Server
 	ServerPort string `mapstructure:"SERVER_PORT"`
 }
