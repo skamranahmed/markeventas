@@ -72,8 +72,8 @@ func (us *userService) DoesUserAlreadyExist(twitterID string) (bool, *models.Use
 
 func (us *userService) LoginWithTwitter() (string, error) {
 	twitterClient := twitterClient.NewTwitterOAuthClient(
-		us.config.TwitterGcalEventLoginAppApiKey,
-		us.config.TwitterGcalEventLoginAppApiKeySecret,
+		us.config.TwitterLoginAppApiKey,
+		us.config.TwitterLoginAppApiKeySecret,
 		"http://localhost:8080/twitter/callback",
 	)
 	requestToken, err := twitterClient.GetRequestToken()
@@ -89,8 +89,8 @@ func (us *userService) LoginWithTwitter() (string, error) {
 
 func (us *userService) FetchTwitterOAuthToken(requestToken, requestSecret, verifier string) (*oauth1.Token, error) {
 	twitterClient := twitterClient.NewTwitterOAuthClient(
-		us.config.TwitterGcalEventLoginAppApiKey,
-		us.config.TwitterGcalEventLoginAppApiKeySecret,
+		us.config.TwitterLoginAppApiKey,
+		us.config.TwitterLoginAppApiKeySecret,
 		"http://localhost:8080/twitter/callback",
 	)
 	token, err := twitterClient.GetToken(requestToken, requestSecret, verifier)
@@ -102,8 +102,8 @@ func (us *userService) FetchTwitterOAuthToken(requestToken, requestSecret, verif
 
 func (us *userService) GetUserDetailsFromTwitter(token *oauth1.Token) (*twitter.User, error) {
 	twitterClient := twitterClient.NewTwitterOAuthClient(
-		us.config.TwitterGcalEventLoginAppApiKey,
-		us.config.TwitterGcalEventLoginAppApiKeySecret,
+		us.config.TwitterLoginAppApiKey,
+		us.config.TwitterLoginAppApiKeySecret,
 		"http://localhost:8080/twitter/callback",
 	)
 	user, err := twitterClient.GetUser(token)

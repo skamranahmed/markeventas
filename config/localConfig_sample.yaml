@@ -1,6 +1,6 @@
 # Twitter Create Gcal Event Login App Credentials #
-TWITTER_CREATE_GCAL_EVENT_LOGIN_APP_API_KEY: ""
-TWITTER_CREATE_GCAL_EVENT_LOGIN_APP_API_KEY_SECRET: ""
+TWITTER_LOGIN_APP_API_KEY: ""
+TWITTER_LOGIN_APP_API_KEY_SECRET: ""
 
 # Twitter Create Gcal Event Bot Credentials #
 TWITTER_CREATE_GCAL_EVENT_BOT_API_KEY: ""
@@ -17,3 +17,6 @@ DB_PORT: "5432"
 
 # Server
 SERVER_PORT: "7000"
+
+# Google API
+GOOGLE_APP_CLIENT_SECRET: "" # paste the client secret json here

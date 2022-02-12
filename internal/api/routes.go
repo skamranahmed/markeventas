@@ -1,6 +1,9 @@
 package api
 
 import (
+	"os"
+	"time"
+
 	"github.com/gin-gonic/gin"
 	"github.com/skamranahmed/twitter-create-gcal-event-api/config"
 	handler "github.com/skamranahmed/twitter-create-gcal-event-api/internal/api/handlers/userHandler"
@@ -8,6 +11,8 @@ import (
 	"github.com/skamranahmed/twitter-create-gcal-event-api/internal/repo"
 	"github.com/skamranahmed/twitter-create-gcal-event-api/internal/service"
 	"github.com/skamranahmed/twitter-create-gcal-event-api/internal/token"
+	"github.com/skamranahmed/twitter-create-gcal-event-api/pkg/log"
+	"github.com/skamranahmed/twitter-create-gcal-event-api/pkg/twitterClient"
 	"gorm.io/gorm"
 )
 
@@ -28,6 +33,28 @@ type handlers struct {
 	userHandler handler.UserHandler
 }
 
+func startTwitterBot(config *config.Config) {
+	twitterBot, err := twitterClient.NewTwitterBotClient(
+		config.TwitterBotAccessToken,
+		config.TwitterBotAccessTokenSecret,
+		config.TwitterBotApiKey,
+		config.TwitterBotApiKeySecret,
+	)
+	if err != nil {
+		log.Errorf("unable to init twitter bot client, error: %v", err)
+		os.Exit(1)
+	}
+
+	log.Infof("Twitter Bot: %+v", twitterBot)
+	// create a ticker that will fetch the twitter timeline mentions and then send a reply
+	ticker := time.NewTicker(3 * time.Second)
+	go func() {
+		for t := range ticker.C {
+			log.Infof("Tick Tok: %v", t)
+		}
+	}()
+}
+
 func InitRoutes(db *gorm.DB, config *config.Config) *gin.Engine {
 	tokenMaker = token.NewJwtTokenMaker(config.TokenSecretSigningKey)
 	_, _, handlers := setDependencies(db, config)
@@ -46,6 +73,10 @@ func InitRoutes(db *gorm.DB, config *config.Config) *gin.Engine {
 	{
 		authorized.POST("/auth-code", handlers.userHandler.SaveGoogleCalendarRefreshToken)
 	}
+
+	// run the twitter bot in background
+	go startTwitterBot(config)
+
 	return router
 }
 
