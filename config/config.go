@@ -10,12 +10,14 @@ import (
 
 type Config struct {
 	// Twitter Gcal Event Login App Credentials
-	TwitterGcalEventLoginAppApiKey       string `mapstructure:"TWITTER_CREATE_GCAL_EVENT_LOGIN_APP_API_KEY"`
-	TwitterGcalEventLoginAppApiKeySecret string `mapstructure:"TWITTER_CREATE_GCAL_EVENT_LOGIN_APP_API_KEY_SECRET"`
+	TwitterLoginAppApiKey       string `mapstructure:"TWITTER_LOGIN_APP_API_KEY"`
+	TwitterLoginAppApiKeySecret string `mapstructure:"TWITTER_LOGIN_APP_API_KEY_SECRET"`
 
 	// Twitter Gcal Event Bot Credentials
-	TwitterGcalEventBotApiKey       string `mapstructure:"TWITTER_CREATE_GCAL_EVENT_BOT_API_KEY"`
-	TwitterGcalEventBotApiKeySecret string `mapstructure:"TWITTER_CREATE_GCAL_EVENT_BOT_API_KEY_SECRET"`
+	TwitterBotApiKey            string `mapstructure:"TWITTER_BOT_API_KEY"`
+	TwitterBotApiKeySecret      string `mapstructure:"TWITTER_BOT_API_KEY_SECRET"`
+	TwitterBotAccessToken       string `mapstructure:"TWITTER_BOT_ACCESS_TOKEN"`
+	TwitterBotAccessTokenSecret string `mapstructure:"TWITTER_BOT_ACCESS_TOKEN_SECRET"`
 
 	// Database Credentials
 	DbHost     string `mapstructure:"DB_HOST"`

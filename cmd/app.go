@@ -30,6 +30,5 @@ func Run() error {
 	if err != nil {
 		return err
 	}
-
 	return api.RunServer(cfg, db)
 }

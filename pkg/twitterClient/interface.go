@@ -11,3 +11,7 @@ type TwitterOAuthClient interface {
 	GetToken(requestToken, requestSecret, verifier string) (*oauth1.Token, error)
 	GetUser(token *oauth1.Token) (*twitter.User, error)
 }
+
+type TwitterBotClient interface {
+	FetchTweetMentions() ([]twitter.Tweet, error)
+}
