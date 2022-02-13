@@ -74,6 +74,9 @@ func startTwitterBot(config *config.Config, userService service.UserService, bot
 				// grab the twitterID of the user who mentioned us in the tweet
 				userTwitterID := tweet.InReplyToUserIDStr
 
+				// grab the statusID
+				statusID := tweet.InReplyToStatusIDStr
+
 				// latestTweetID - required for SinceID
 				userTweetID := tweet.ID
 
@@ -124,16 +127,7 @@ func startTwitterBot(config *config.Config, userService service.UserService, bot
 					continue
 				}
 
-				/*
-					user account exists
-						- check for google calendar consent
-							- if exits
-								- create an event in google calendar
-								- send a success reply
-					 		- else
-								- send a reply to ask the user to give google calendar consent
-				*/
-
+				
 				// checking the google calendar consent
 				// the code argument would be empty as be would use the refresh token of the user saved in the db
 				googleService, err := userService.NewGoogleService(user.ID, "")
@@ -158,10 +152,12 @@ func startTwitterBot(config *config.Config, userService service.UserService, bot
 					continue
 				}
 
+				tweetURL := fmt.Sprintf("https://twitter.com/%s/status/%s", userTwitterScreenName, statusID)
+
 				calendarService := googleService.CalendarService()
 				event := &calendar.Event{
 					Summary:     "Twitter Space",
-					Description: "https://www.google.com",
+					Description: tweetURL,
 					Start: &calendar.EventDateTime{
 						DateTime: "2022-01-26T09:00:00-07:00",
 						TimeZone: "Asia/Calcutta",
@@ -177,11 +173,22 @@ func startTwitterBot(config *config.Config, userService service.UserService, bot
 				event, err = calendarService.Events.Insert(calendarId, event).Do()
 				if err != nil {
 					log.Errorf("Unable to create event. %v\n", err)
+					continue
 				}
-				fmt.Printf("Event created: %s\n", event.HtmlLink)
 
-				body := fmt.Sprintf("@%s Your event has been created, :%s", userTwitterScreenName, event.HtmlLink)
-				_, _, _, err = twitterBot.ReplyToTweet(userTweetID, body)
+				body := fmt.Sprintf(utils.UserGoogleCalendarEventCreatedReply.Body, userTwitterScreenName, event.HtmlLink)
+				_, responseBody, statusCode, err := twitterBot.ReplyToTweet(userTweetID, body)
+
+				// update the botReply record
+				botReplyRecord.Body = body
+				botReplyRecord.Response = responseBody
+				botReplyRecord.StatusCode = statusCode
+				botReplyRecord.TypeCode = utils.UserGoogleCalendarEventCreatedReply.Code
+
+				err = botReplyService.Save(botReplyRecord)
+				if err != nil {
+					log.Errorf("unable to save the updated botReplyRecord: %+v, err: %v", botReplyRecord, err)
+				}
 			}
 		}
 	}()
