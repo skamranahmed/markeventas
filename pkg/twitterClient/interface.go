@@ -13,5 +13,6 @@ type TwitterOAuthClient interface {
 }
 
 type TwitterBotClient interface {
-	FetchTweetMentions() ([]twitter.Tweet, error)
+	FetchTweetMentions(sinceTweetID int64) ([]twitter.Tweet, error)
+	ReplyToTweet(tweetID int64, replyBody string) (*twitter.Tweet, string, int, error)
 }

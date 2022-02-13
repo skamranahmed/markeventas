@@ -16,3 +16,9 @@ type TokenRepository interface {
 	GetUserToken(userID uint) (*models.Token, error)
 	Save(u *models.Token) error
 }
+
+type BotReplyRepository interface {
+	Create(botReply *models.BotReply) (*models.BotReply, error)
+	Save(b *models.BotReply) error
+	GetLatestRepliedToTweetID() (int64, error)
+}
