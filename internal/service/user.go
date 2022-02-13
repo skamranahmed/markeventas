@@ -32,13 +32,21 @@ type userService struct {
 	tokenMaker token.Maker
 }
 
-func (us *userService) GetUserCalendarService(userID uint, code string) (GoogleService, error) {
+func (us *userService) NewGoogleService(userID uint, code string) (GoogleService, error) {
 	googleService, err := NewGoogleService(userID, code, us.tokenRepo, us.config)
 	if err != nil {
 		log.Errorf("unable to init google service for userID: %d, error: %v", userID, err)
 		return nil, err
 	}
 	return googleService, nil
+}
+
+func (us *userService) FindByTwitterID(twitterID string) (*models.User, error) {
+	user, err := us.userRepo.FindByTwitterID(twitterID)
+	if err != nil {
+		return nil, err
+	}
+	return user, nil
 }
 
 func (us *userService) Create(u *models.User) error {

@@ -171,9 +171,9 @@ func (uh *userHandler) SaveGoogleCalendarRefreshToken(c *gin.Context) {
 
 	userID := authToken.UserID
 
-	_, err = uh.service.GetUserCalendarService(userID, requestPayload.Code)
+	_, err = uh.service.NewGoogleService(userID, requestPayload.Code)
 	// TODO: error Handling
-	// googleService, err := uh.service.GetUserCalendarService(userID, "")
+	// googleService, err := uh.service.NewGoogleService(userID, "")
 	// calendarService := googleService.CalendarService()
 
 	// t := time.Now().Format(time.RFC3339)
