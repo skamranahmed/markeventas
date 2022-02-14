@@ -198,12 +198,6 @@ func InitRoutes(db *gorm.DB, config *config.Config) *gin.Engine {
 	tokenMaker = token.NewJwtTokenMaker(config.TokenSecretSigningKey)
 	_, services, handlers := setDependencies(db, config)
 	router := gin.Default()
-	router.GET("/", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"Hello": "World",
-		})
-		return
-	})
 	router.GET("/api/login", handlers.userHandler.TwitterOAuthLogin)
 	router.POST("/api/twitter/callback", handlers.userHandler.HandleTwitterOAuthCallback)
 
