@@ -9,43 +9,49 @@ import (
 	"github.com/skamranahmed/twitter-create-gcal-event-api/pkg/log"
 )
 
-func ParseTweetText(tweetText string) (timeString, timeZoneIanaName string, err error) {
+type ParsedUserTweetContent struct {
+	SpaceName string
+	DateTimeString string
+	TimeZoneIanaName string
+}
+
+func ParseTweetText(tweetText string) (*ParsedUserTweetContent, error) {
 	// <space_name> | <date> | <time> | <time_zone>
 	strSlice := strings.SplitAfter("Kamran's Space | Jan 28, 2022 | 6:43 PM | IST", "|")
 	if len(strSlice) != 4 {
-		return "", "", errors.New("invalid tweet text format")
+		return nil, errors.New("invalid tweet text format")
 	}
 
 	spaceName, err := processSpaceName(strSlice[0])
 	if err != nil {
 		log.Error(err)
-		return "", "", errors.New("invalid space name")
+		return nil, errors.New("invalid space name")
 	}
 
 	dateValue, err := processDateValue(strSlice[1])
 	if err != nil {
 		log.Error(err)
-		return "", "", errors.New("invalid date format")
+		return nil, errors.New("invalid date format")
 	}
 
 	timeValue, err := processTimeString(strSlice[2])
 	if err != nil {
 		log.Error(err)
-		return "", "", errors.New("invalid time format")
+		return nil, errors.New("invalid time format")
 	}
 
 	timeZoneValue, err := processTimeZoneValue(strSlice[3])
 	if err != nil {
 		log.Error(err)
-		return "", "", errors.New("invalid time zone format")
+		return nil, errors.New("invalid time zone format")
 	}
 
 	log.Info("Space Name: %s, Date: %s, Time: %s, TimeZone: %s\n", spaceName, dateValue, timeValue, timeZoneValue)
 
-	timeZoneIanaName, err = getIanaName("IST")
+	timeZoneIanaName, err := getIanaName("IST")
 	if err != nil {
 		log.Error(err)
-		return "", "", errors.New("time zone not available")
+		return nil, errors.New("time zone not available")
 	}
 
 	// eg: Feb 2, 2022 at 6:54pm IST
@@ -54,11 +60,17 @@ func ParseTweetText(tweetText string) (timeString, timeZoneIanaName string, err 
 	t, err := time.Parse(longFormTimeLayout, dateTimeValue)
 	if err != nil {
 		log.Error(err)
-		return "", "", errors.New("invalid time format")
+		return nil, errors.New("invalid time format")
 	}
 
-	timeString = t.Format(time.RFC3339)
-	return timeString, timeZoneIanaName, nil
+	dateTimeString := t.Format(time.RFC3339)
+
+	data := &ParsedUserTweetContent{
+		SpaceName: spaceName,
+		DateTimeString: dateTimeString,
+		TimeZoneIanaName: timeZoneIanaName,
+	}
+	return data, nil
 }
 
 func processSpaceName(spaceName string) (string, error) {

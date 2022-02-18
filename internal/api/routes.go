@@ -161,20 +161,28 @@ func startTwitterBot(config *config.Config, userService service.UserService, bot
 					continue
 				}
 
+				// extract the user tweet and parse it
+				tweetText := tweet.FullText
+				userTweetData, err := utils.ParseTweetText(tweetText)
+				if err != nil {
+					// send reply to the user saying that the format of the tweet is incorrect
+					log.Error(err)
+				}
+
 				tweetURL := fmt.Sprintf("https://twitter.com/%s/status/%s", userTwitterScreenName, statusID)
 
 				calendarService := googleService.CalendarService()
 				event := &calendar.Event{
-					Summary:     "Twitter Space",
+					Summary:     userTweetData.SpaceName,
 					Description: tweetURL,
 					Start: &calendar.EventDateTime{
-						DateTime: "2022-01-26T09:00:00-07:00",
-						TimeZone: "Asia/Calcutta",
+						DateTime: userTweetData.DateTimeString,
+						TimeZone: userTweetData.TimeZoneIanaName,
 					},
 					ColorId: "2",
 					End: &calendar.EventDateTime{
-						DateTime: "2022-01-26T10:00:00-07:00",
-						TimeZone: "Asia/Calcutta",
+						DateTime: userTweetData.DateTimeString,
+						TimeZone: userTweetData.TimeZoneIanaName,
 					},
 				}
 
