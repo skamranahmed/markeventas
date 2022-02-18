@@ -2,6 +2,8 @@ package utils
 
 import "github.com/pkg/errors"
 
+const longFormTimeLayout = "Jan 2, 2006 at 3:04pm MST"
+
 type TimeZone struct {
 	IANAName string
 }
