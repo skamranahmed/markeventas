@@ -3,6 +3,7 @@ package utils
 import (
 	"errors"
 	"fmt"
+	"regexp"
 	"strings"
 	"time"
 
@@ -10,14 +11,17 @@ import (
 )
 
 type ParsedUserTweetContent struct {
-	SpaceName string
-	DateTimeString string
-	TimeZoneIanaName string
+	SpaceName           string
+	StartDateTimeString string
+	EndDateTimeString   string
+	TimeZoneIanaName    string
 }
 
 func ParseTweetText(tweetText string) (*ParsedUserTweetContent, error) {
-	// <space_name> | <date> | <time> | <time_zone>
-	strSlice := strings.SplitAfter("Kamran's Space | Jan 28, 2022 | 6:43 PM | IST", "|")
+	// @creategcalevent <space_name> | <date> | <time> | <time_zone>
+	tweetText = processTweetText(tweetText)
+
+	strSlice := strings.SplitAfter(tweetText, "|")
 	if len(strSlice) != 4 {
 		return nil, errors.New("invalid tweet text format")
 	}
@@ -46,7 +50,7 @@ func ParseTweetText(tweetText string) (*ParsedUserTweetContent, error) {
 		return nil, errors.New("invalid time zone format")
 	}
 
-	log.Info("Space Name: %s, Date: %s, Time: %s, TimeZone: %s\n", spaceName, dateValue, timeValue, timeZoneValue)
+	log.Infof("Space Name: %s, Date: %s, Time: %s, TimeZone: %s\n", spaceName, dateValue, timeValue, timeZoneValue)
 
 	timeZoneIanaName, err := getIanaName("IST")
 	if err != nil {
@@ -57,20 +61,36 @@ func ParseTweetText(tweetText string) (*ParsedUserTweetContent, error) {
 	// eg: Feb 2, 2022 at 6:54pm IST
 	dateTimeValue := fmt.Sprintf("%s at %s %s", dateValue, timeValue, timeZoneValue)
 
-	t, err := time.Parse(longFormTimeLayout, dateTimeValue)
+	startTime, err := time.Parse(longFormTimeLayout, dateTimeValue)
 	if err != nil {
 		log.Error(err)
 		return nil, errors.New("invalid time format")
 	}
+	startDateTimeString := startTime.Format(time.RFC3339)
 
-	dateTimeString := t.Format(time.RFC3339)
+	endTime := startTime.Add(30 * time.Minute)
+	endDateTimeString := endTime.Format(time.RFC3339)
 
 	data := &ParsedUserTweetContent{
-		SpaceName: spaceName,
-		DateTimeString: dateTimeString,
-		TimeZoneIanaName: timeZoneIanaName,
+		SpaceName:           spaceName,
+		StartDateTimeString: startDateTimeString,
+		EndDateTimeString:   endDateTimeString,
+		TimeZoneIanaName:    timeZoneIanaName,
 	}
 	return data, nil
+}
+
+func processTweetText(tweetText string) string {
+	// eg: "@creategcalevent Kamran's Space | Feb 28, 2022 | 6:43 PM | IST"
+	pattern := regexp.MustCompile(`(@creategcalevent).*`)
+	matches := pattern.FindAllString(tweetText, -1)
+	matchedText := matches[0] // [@creategcalevent Kamran's Space | Feb 28, 2022 | 6:43 PM | IST]
+
+	tweetContents := strings.Split(matchedText, "@creategcalevent") // [@creategcalevent, Kamran's Space | Feb 28, 2022 | 6:43 PM | IST]
+	tweetText = strings.TrimLeft(tweetContents[1], " ")             // Kamran's Space | Feb 28, 2022 | 6:43 PM | IST
+	tweetText = strings.TrimSpace(tweetText)
+
+	return tweetText
 }
 
 func processSpaceName(spaceName string) (string, error) {
@@ -85,6 +105,7 @@ func processSpaceName(spaceName string) (string, error) {
 }
 
 func processDateValue(dateValue string) (string, error) {
+	dateValue = strings.TrimSpace(dateValue)
 	if strings.Contains(dateValue, " |") {
 		// Need to split including space
 		dateValue = strings.Split(dateValue, " |")[0]
