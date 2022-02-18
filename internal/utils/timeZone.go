@@ -12,7 +12,7 @@ var availableTimeZones = map[string]TimeZone{
 	},
 }
 
-func getTimeZoneIANAName(timeZone string) (string, error) {
+func getIanaName(timeZone string) (string, error) {
 	if availableTimeZones[timeZone].IANAName == "" {
 		return "", errors.Errorf("cant find IANA Name for timezone %s", timeZone)
 	}

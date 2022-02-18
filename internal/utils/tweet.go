@@ -43,7 +43,7 @@ func ParseTweetText() {
 
 	log.Info("Space Name: %s, Date: %s, Time: %s, TimeZone: %s\n", spaceName, dateValue, timeValue, timeZoneValue)
 
-	ianaName, err := getTimeZoneIANAName("IST")
+	ianaName, err := getIanaName("IST")
 	if err != nil {
 		log.Error(err)
 		os.Exit(1)
