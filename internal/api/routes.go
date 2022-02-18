@@ -25,21 +25,21 @@ var (
 )
 
 type repos struct {
-	userRepo     repo.UserRepository
-	tokenRepo    repo.TokenRepository
-	botReplyRepo repo.BotReplyRepository
+	userRepo   repo.UserRepository
+	tokenRepo  repo.TokenRepository
+	botLogRepo repo.BotLogRepository
 }
 
 type services struct {
-	userService     service.UserService
-	botReplyService service.BotReplyService
+	userService   service.UserService
+	botLogService service.BotLogService
 }
 
 type handlers struct {
 	userHandler handler.UserHandler
 }
 
-func startTwitterBot(config *config.Config, userService service.UserService, botReplyService service.BotReplyService) {
+func startTwitterBot(config *config.Config, userService service.UserService, botLogService service.BotLogService) {
 	twitterBot, err := twitterClient.NewTwitterBotClient(
 		config.TwitterBotAccessToken,
 		config.TwitterBotAccessTokenSecret,
@@ -55,7 +55,7 @@ func startTwitterBot(config *config.Config, userService service.UserService, bot
 	ticker := time.NewTicker(3 * time.Second)
 	go func() {
 		for t := range ticker.C {
-			sinceTweetID, err := botReplyService.GetLatestRepliedToTweetID()
+			sinceTweetID, err := botLogService.GetLatestRepliedToTweetID()
 			if err != nil {
 				log.Errorf("unable to fetch latestRepliedToTweetID from the db, err: %v", err)
 				sinceTweetID = 0
@@ -97,15 +97,15 @@ func startTwitterBot(config *config.Config, userService service.UserService, bot
 					}
 				}
 
-				botReplyRecord := &models.BotReply{
+				botLogRecord := &models.BotLog{
 					ToTweetID:             userTweetID,
 					UserTwitterID:         userTwitterID,
 					UserTwitterScreenName: userTwitterScreenName,
 				}
 
-				botReplyRecord, err = botReplyService.Insert(botReplyRecord)
+				botLogRecord, err = botLogService.Insert(botLogRecord)
 				if err != nil {
-					log.Errorf("unable to insert bot reply record: %+v in db, err: %v", botReplyRecord, err)
+					log.Errorf("unable to insert bot log record: %+v in db, err: %v", botLogRecord, err)
 					continue
 				}
 
@@ -119,15 +119,15 @@ func startTwitterBot(config *config.Config, userService service.UserService, bot
 						log.Errorf("unable to send UserAccountDoesNotExistReply to userTwitterID: %s, err: %v", userTwitterID, err)
 					}
 
-					// update the botReply record
-					botReplyRecord.Body = body
-					botReplyRecord.Response = responseBody
-					botReplyRecord.StatusCode = statusCode
-					botReplyRecord.TypeCode = utils.UserAccountDoesNotExistReply.Code
+					// update the botLog record
+					botLogRecord.Body = body
+					botLogRecord.Response = responseBody
+					botLogRecord.StatusCode = statusCode
+					botLogRecord.TypeCode = utils.UserAccountDoesNotExistReply.Code
 
-					err = botReplyService.Save(botReplyRecord)
+					err = botLogService.Save(botLogRecord)
 					if err != nil {
-						log.Errorf("unable to save the updated botReplyRecord: %+v, err: %v", botReplyRecord, err)
+						log.Errorf("unable to save the updated botLogRecord: %+v, err: %v", botLogRecord, err)
 					}
 
 					continue
@@ -147,15 +147,15 @@ func startTwitterBot(config *config.Config, userService service.UserService, bot
 						log.Errorf("unable to send UserGoogleCalendarConsentAbsentReply to userID: %d, err: %v", user.ID, err)
 					}
 
-					// update the botReply record
-					botReplyRecord.Body = body
-					botReplyRecord.Response = responseBody
-					botReplyRecord.StatusCode = statusCode
-					botReplyRecord.TypeCode = utils.UserGoogleCalendarConsentAbsentReply.Code
+					// update the botLog record
+					botLogRecord.Body = body
+					botLogRecord.Response = responseBody
+					botLogRecord.StatusCode = statusCode
+					botLogRecord.TypeCode = utils.UserGoogleCalendarConsentAbsentReply.Code
 
-					err = botReplyService.Save(botReplyRecord)
+					err = botLogService.Save(botLogRecord)
 					if err != nil {
-						log.Errorf("unable to save the updated botReplyRecord: %+v, err: %v", botReplyRecord, err)
+						log.Errorf("unable to save the updated botLogRecord: %+v, err: %v", botLogRecord, err)
 					}
 
 					continue
@@ -198,15 +198,15 @@ func startTwitterBot(config *config.Config, userService service.UserService, bot
 				body := fmt.Sprintf(utils.UserGoogleCalendarEventCreatedReply.Body, userTwitterScreenName, event.HtmlLink)
 				_, responseBody, statusCode, err := twitterBot.ReplyToTweet(userTweetID, body)
 
-				// update the botReply record
-				botReplyRecord.Body = body
-				botReplyRecord.Response = responseBody
-				botReplyRecord.StatusCode = statusCode
-				botReplyRecord.TypeCode = utils.UserGoogleCalendarEventCreatedReply.Code
+				// update the botLog record
+				botLogRecord.Body = body
+				botLogRecord.Response = responseBody
+				botLogRecord.StatusCode = statusCode
+				botLogRecord.TypeCode = utils.UserGoogleCalendarEventCreatedReply.Code
 
-				err = botReplyService.Save(botReplyRecord)
+				err = botLogService.Save(botLogRecord)
 				if err != nil {
-					log.Errorf("unable to save the updated botReplyRecord: %+v, err: %v", botReplyRecord, err)
+					log.Errorf("unable to save the updated botLogRecord: %+v, err: %v", botLogRecord, err)
 				}
 			}
 		}
@@ -227,7 +227,7 @@ func InitRoutes(db *gorm.DB, config *config.Config) *gin.Engine {
 	}
 
 	// run the twitter bot in background
-	go startTwitterBot(config, services.userService, services.botReplyService)
+	go startTwitterBot(config, services.userService, services.botLogService)
 
 	return router
 }
@@ -252,16 +252,16 @@ func (r *repos) setDependencies(db *gorm.DB) {
 	tokenRepo := repo.NewTokenRepository(db)
 	r.tokenRepo = tokenRepo
 
-	botReplyRepo := repo.NewBotReplyRepository(db)
-	r.botReplyRepo = botReplyRepo
+	botLogRepo := repo.NewBotLogRepository(db)
+	r.botLogRepo = botLogRepo
 }
 
 func (s *services) setDependencies(repos *repos, config *config.Config) {
 	userService := service.NewUserService(repos.userRepo, repos.tokenRepo, config, tokenMaker)
 	s.userService = userService
 
-	botReplyService := service.NewBotReplyService(repos.botReplyRepo)
-	s.botReplyService = botReplyService
+	botLogService := service.NewBotLogService(repos.botLogRepo)
+	s.botLogService = botLogService
 }
 
 func (h *handlers) setDependencies(services *services, config *config.Config) {

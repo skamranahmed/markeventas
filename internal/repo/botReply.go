@@ -5,21 +5,21 @@ import (
 	"gorm.io/gorm"
 )
 
-func NewBotReplyRepository(db *gorm.DB) BotReplyRepository {
-	return &botReplyRepo{
+func NewBotLogRepository(db *gorm.DB) BotLogRepository {
+	return &botLogRepo{
 		db: db,
 	}
 }
 
-type botReplyRepo struct {
+type botLogRepo struct {
 	db *gorm.DB
 }
 
-func (br *botReplyRepo) Create(botReply *models.BotReply) (*models.BotReply, error) {
-	return br.createWithDB(br.db, botReply)
+func (br *botLogRepo) Create(botLog *models.BotLog) (*models.BotLog, error) {
+	return br.createWithDB(br.db, botLog)
 }
 
-func (br *botReplyRepo) createWithDB(tx *gorm.DB, b *models.BotReply) (*models.BotReply, error) {
+func (br *botLogRepo) createWithDB(tx *gorm.DB, b *models.BotLog) (*models.BotLog, error) {
 	err := tx.Create(b).Error
 	if err != nil {
 		return nil, err
@@ -27,11 +27,11 @@ func (br *botReplyRepo) createWithDB(tx *gorm.DB, b *models.BotReply) (*models.B
 	return b, nil
 }
 
-func (br *botReplyRepo) Save(b *models.BotReply) error {
+func (br *botLogRepo) Save(b *models.BotLog) error {
 	return br.saveWithDB(br.db, b)
 }
 
-func (br *botReplyRepo) saveWithDB(tx *gorm.DB, b *models.BotReply) error {
+func (br *botLogRepo) saveWithDB(tx *gorm.DB, b *models.BotLog) error {
 	err := tx.Save(b).Error
 	if err != nil {
 		return err
@@ -39,7 +39,7 @@ func (br *botReplyRepo) saveWithDB(tx *gorm.DB, b *models.BotReply) error {
 	return nil
 }
 
-func (br *botReplyRepo) GetLatestRepliedToTweetID() (int64, error) {
+func (br *botLogRepo) GetLatestRepliedToTweetID() (int64, error) {
 	type result struct {
 		ToTweetID int64 `json:"to_tweet_id"`
 	}
@@ -48,7 +48,7 @@ func (br *botReplyRepo) GetLatestRepliedToTweetID() (int64, error) {
 		SELECT
 			to_tweet_id
 		FROM
-			bot_replies
+			bot_logs
 		ORDER BY
 			id DESC
 		LIMIT 1
