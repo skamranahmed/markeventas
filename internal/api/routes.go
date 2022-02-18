@@ -1,6 +1,7 @@
 package api
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"time"
@@ -85,6 +86,9 @@ func startTwitterBot(config *config.Config, userService service.UserService, bot
 				// userTwitterScreenName
 				userTwitterScreenName := tweet.InReplyToScreenName
 
+				// extract the user tweet text
+				userTweetText := tweet.FullText
+
 				// check whehter this user has an account with us
 				user, err := userService.FindByTwitterID(userTwitterID)
 				if err != nil {
@@ -101,6 +105,7 @@ func startTwitterBot(config *config.Config, userService service.UserService, bot
 					ToTweetID:             userTweetID,
 					UserTwitterID:         userTwitterID,
 					UserTwitterScreenName: userTwitterScreenName,
+					UserTweet:             userTweetText,
 				}
 
 				botLogRecord, err = botLogService.Insert(botLogRecord)
@@ -161,12 +166,12 @@ func startTwitterBot(config *config.Config, userService service.UserService, bot
 					continue
 				}
 
-				// extract the user tweet and parse it
-				tweetText := tweet.FullText
-				userTweetData, err := utils.ParseTweetText(tweetText)
+				// parse the user tweet text
+				userTweetData, err := utils.ParseTweetText(userTweetText)
 				if err != nil {
 					// send reply to the user saying that the format of the tweet is incorrect
 					log.Error(err)
+					continue
 				}
 
 				tweetURL := fmt.Sprintf("https://twitter.com/%s/status/%s", userTwitterScreenName, statusID)
@@ -198,8 +203,12 @@ func startTwitterBot(config *config.Config, userService service.UserService, bot
 				body := fmt.Sprintf(utils.UserGoogleCalendarEventCreatedReply.Body, userTwitterScreenName, event.HtmlLink)
 				_, responseBody, statusCode, err := twitterBot.ReplyToTweet(userTweetID, body)
 
+				// convert the user tweet data into JSON for saving in db
+				userTweetJson, _ := json.Marshal(userTweetData)
+
 				// update the botLog record
 				botLogRecord.Reply = body
+				botLogRecord.UserParsedTweet = string(userTweetJson)
 				botLogRecord.HttpResponse = responseBody
 				botLogRecord.HttpStatusCode = statusCode
 				botLogRecord.ReplyTypeCode = utils.UserGoogleCalendarEventCreatedReply.Code
