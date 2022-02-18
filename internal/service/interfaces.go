@@ -24,8 +24,8 @@ type GoogleService interface {
 	CalendarService() *calendar.Service
 }
 
-type BotReplyService interface {
-	Insert(botReply *models.BotReply) (*models.BotReply, error)
-	Save(b *models.BotReply) error
+type BotLogService interface {
+	Insert(botLog *models.BotLog) (*models.BotLog, error)
+	Save(b *models.BotLog) error
 	GetLatestRepliedToTweetID() (int64, error)
 }

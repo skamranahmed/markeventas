@@ -2,7 +2,7 @@ package models
 
 import "gorm.io/gorm"
 
-type BotReply struct {
+type BotLog struct {
 	gorm.Model
 	ToTweetID             int64  `gorm:"not null" json:"to_tweet_id"`
 	UserTwitterID         string `gorm:"not null" json:"user_twitter_id"`

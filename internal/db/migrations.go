@@ -21,10 +21,10 @@ func Migrate(db *gorm.DB) error {
 		return err
 	}
 
-	log.Info("creating BotReply table")
-	err = db.AutoMigrate(models.BotReply{})
+	log.Info("creating BotLog table")
+	err = db.AutoMigrate(models.BotLog{})
 	if err != nil {
-		log.Errorf("unable to migrate BotReply table, error: %v", err)
+		log.Errorf("unable to migrate BotLog table, error: %v", err)
 		return err
 	}
 	return nil
