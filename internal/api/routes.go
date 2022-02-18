@@ -167,6 +167,7 @@ func startTwitterBot(config *config.Config, userService service.UserService, bot
 				}
 
 				// parse the user tweet text
+				// _ = "Kamran's Space | Jan 28, 2022 | 6:43 PM | IST"
 				userTweetData, err := utils.ParseTweetText(userTweetText)
 				if err != nil {
 					// send reply to the user saying that the format of the tweet is incorrect
@@ -181,12 +182,12 @@ func startTwitterBot(config *config.Config, userService service.UserService, bot
 					Summary:     userTweetData.SpaceName,
 					Description: tweetURL,
 					Start: &calendar.EventDateTime{
-						DateTime: userTweetData.DateTimeString,
+						DateTime: userTweetData.StartDateTimeString,
 						TimeZone: userTweetData.TimeZoneIanaName,
 					},
 					ColorId: "2",
 					End: &calendar.EventDateTime{
-						DateTime: userTweetData.DateTimeString,
+						DateTime: userTweetData.EndDateTimeString,
 						TimeZone: userTweetData.TimeZoneIanaName,
 					},
 				}
@@ -208,7 +209,7 @@ func startTwitterBot(config *config.Config, userService service.UserService, bot
 
 				// update the botLog record
 				botLogRecord.Reply = body
-				botLogRecord.UserParsedTweet = string(userTweetJson)
+				botLogRecord.UserParsedTweetData = string(userTweetJson)
 				botLogRecord.HttpResponse = responseBody
 				botLogRecord.HttpStatusCode = statusCode
 				botLogRecord.ReplyTypeCode = utils.UserGoogleCalendarEventCreatedReply.Code
