@@ -54,7 +54,7 @@ func startTwitterBot(config *config.Config, userService service.UserService, bot
 	// create a ticker that will fetch the twitter timeline mentions and then send a reply
 	ticker := time.NewTicker(3 * time.Second)
 	go func() {
-		for range ticker.C {
+		for t := range ticker.C {
 			sinceTweetID, err := botReplyService.GetLatestRepliedToTweetID()
 			if err != nil {
 				log.Errorf("unable to fetch latestRepliedToTweetID from the db, err: %v", err)
@@ -66,6 +66,8 @@ func startTwitterBot(config *config.Config, userService service.UserService, bot
 				log.Error(err)
 				continue
 			}
+
+			log.Infof("Got %d tweets to process at %v", len(tweets), t)
 
 			for _, tweet := range tweets {
 				// assume that the user has an account with us
@@ -110,8 +112,12 @@ func startTwitterBot(config *config.Config, userService service.UserService, bot
 				if !userAccountExists {
 					// user account does not exist
 					// send user doesn't have an account with us reply to the user
+					log.Warningf("user account for twitterID: %s does not exist, sending UserAccountDoesNotExistReply", userTwitterID)
 					body := fmt.Sprintf(utils.UserAccountDoesNotExistReply.Body, userTwitterScreenName)
 					_, responseBody, statusCode, err := twitterBot.ReplyToTweet(userTweetID, body)
+					if err != nil {
+						log.Errorf("unable to send UserAccountDoesNotExistReply to userTwitterID: %s, err: %v", userTwitterID, err)
+					}
 
 					// update the botReply record
 					botReplyRecord.Body = body
@@ -127,7 +133,6 @@ func startTwitterBot(config *config.Config, userService service.UserService, bot
 					continue
 				}
 
-				
 				// checking the google calendar consent
 				// the code argument would be empty as be would use the refresh token of the user saved in the db
 				googleService, err := userService.NewGoogleService(user.ID, "")
@@ -135,8 +140,12 @@ func startTwitterBot(config *config.Config, userService service.UserService, bot
 					log.Warningf("unable to init google service for the userID: %d, err: %v", user.ID, err)
 
 					// send google calendar consent absent reply to the user
+					log.Warningf("user google calendar consent absent for userID: %d, sending UserGoogleCalendarConsentAbsentReply", user.ID)
 					body := fmt.Sprintf(utils.UserGoogleCalendarConsentAbsentReply.Body, userTwitterScreenName)
 					_, responseBody, statusCode, err := twitterBot.ReplyToTweet(userTweetID, body)
+					if err != nil {
+						log.Errorf("unable to send UserGoogleCalendarConsentAbsentReply to userID: %d, err: %v", user.ID, err)
+					}
 
 					// update the botReply record
 					botReplyRecord.Body = body
@@ -172,10 +181,12 @@ func startTwitterBot(config *config.Config, userService service.UserService, bot
 				calendarId := "primary"
 				event, err = calendarService.Events.Insert(calendarId, event).Do()
 				if err != nil {
-					log.Errorf("Unable to create event. %v\n", err)
+					log.Errorf("Unable to create google calendar event for the userID: %d, err: %v", user.ID, err)
+					// send error reply to the user
 					continue
 				}
 
+				log.Infof("google calendar event created for userID: %d, sending UserGoogleCalendarEventCreatedReply", user.ID)
 				body := fmt.Sprintf(utils.UserGoogleCalendarEventCreatedReply.Body, userTwitterScreenName, event.HtmlLink)
 				_, responseBody, statusCode, err := twitterBot.ReplyToTweet(userTweetID, body)
 
