@@ -120,10 +120,10 @@ func startTwitterBot(config *config.Config, userService service.UserService, bot
 					}
 
 					// update the botLog record
-					botLogRecord.Body = body
-					botLogRecord.Response = responseBody
-					botLogRecord.StatusCode = statusCode
-					botLogRecord.TypeCode = utils.UserAccountDoesNotExistReply.Code
+					botLogRecord.Reply = body
+					botLogRecord.HttpResponse = responseBody
+					botLogRecord.HttpStatusCode = statusCode
+					botLogRecord.ReplyTypeCode = utils.UserAccountDoesNotExistReply.Code
 
 					err = botLogService.Save(botLogRecord)
 					if err != nil {
@@ -148,10 +148,10 @@ func startTwitterBot(config *config.Config, userService service.UserService, bot
 					}
 
 					// update the botLog record
-					botLogRecord.Body = body
-					botLogRecord.Response = responseBody
-					botLogRecord.StatusCode = statusCode
-					botLogRecord.TypeCode = utils.UserGoogleCalendarConsentAbsentReply.Code
+					botLogRecord.Reply = body
+					botLogRecord.HttpResponse = responseBody
+					botLogRecord.HttpStatusCode = statusCode
+					botLogRecord.ReplyTypeCode = utils.UserGoogleCalendarConsentAbsentReply.Code
 
 					err = botLogService.Save(botLogRecord)
 					if err != nil {
@@ -199,10 +199,10 @@ func startTwitterBot(config *config.Config, userService service.UserService, bot
 				_, responseBody, statusCode, err := twitterBot.ReplyToTweet(userTweetID, body)
 
 				// update the botLog record
-				botLogRecord.Body = body
-				botLogRecord.Response = responseBody
-				botLogRecord.StatusCode = statusCode
-				botLogRecord.TypeCode = utils.UserGoogleCalendarEventCreatedReply.Code
+				botLogRecord.Reply = body
+				botLogRecord.HttpResponse = responseBody
+				botLogRecord.HttpStatusCode = statusCode
+				botLogRecord.ReplyTypeCode = utils.UserGoogleCalendarEventCreatedReply.Code
 
 				err = botLogService.Save(botLogRecord)
 				if err != nil {
