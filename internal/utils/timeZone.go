@@ -9,6 +9,34 @@ type TimeZone struct {
 }
 
 var availableTimeZones = map[string]TimeZone{
+	"DST": {
+		IANAName: "Etc/GMT+12",
+	},
+
+	"U": {
+		IANAName: "Pacific/Midway",
+	},
+
+	"HST": {
+		IANAName: "Pacific/Rarotonga",
+	},
+
+	"AKDT": {
+		IANAName: "America/Anchorage",
+	},
+
+	"PDT": {
+		IANAName: "America/Santa_Isabel",
+	},
+
+	"PST": {
+		IANAName: "America/Los_Angeles",
+	},
+
+	"UMST": {
+		IANAName: "America/Creston",
+	},
+
 	"IST": {
 		IANAName: "Asia/Calcutta",
 	},
