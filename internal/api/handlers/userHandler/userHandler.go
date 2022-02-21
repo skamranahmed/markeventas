@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/skamranahmed/twitter-create-gcal-event-api/internal/token"
+	"gorm.io/gorm"
 
 	"github.com/dghubble/oauth1"
 
@@ -137,9 +138,10 @@ func (uh *userHandler) HandleTwitterOAuthCallback(c *gin.Context) {
 	}
 
 	resp := &TwitterOAuthCallbackResponse{
-		AccessToken: userToken,
-		TwitterID:   user.TwitterID,
-		ScreenName:  user.TwitterScreenName,
+		AccessToken:              userToken,
+		TwitterID:                user.TwitterID,
+		ScreenName:               user.TwitterScreenName,
+		IsGoogleOauthTokenActive: user.IsGcalOauthTokenActive,
 	}
 
 	c.JSON(http.StatusOK, resp)
@@ -169,31 +171,35 @@ func (uh *userHandler) SaveGoogleCalendarRefreshToken(c *gin.Context) {
 		return
 	}
 
-	userID := authToken.UserID
+	// check whehter this user has an account with us
+	user, err := uh.service.FindByTwitterID(authToken.TwitterID)
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			log.Warningf("user does not have an account with us")
+		} else {
+			log.Warningf("unable to fetch user from the db, userTwitterID: %s, err: %v", authToken.TwitterID, err)
+		}
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
 
-	_, err = uh.service.NewGoogleService(userID, requestPayload.Code)
-	// TODO: error Handling
-	// googleService, err := uh.service.NewGoogleService(userID, "")
-	// calendarService := googleService.CalendarService()
+	_, err = uh.service.NewGoogleService(user.ID, requestPayload.Code)
+	if err != nil {
+		log.Errorf("unable to init google service for the userID: %d, in SaveGoogleCalendarRefreshToken, err: %v", user.ID, err)
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
 
-	// t := time.Now().Format(time.RFC3339)
-	// events, err := calendarService.Events.List("primary").ShowDeleted(false).
-	// 	SingleEvents(true).TimeMin(t).MaxResults(10).OrderBy("startTime").Do()
-	// if err != nil {
-	// 	log.Errorf("Unable to retrieve next ten of the user's events: %v", err)
-	// }
-	// fmt.Println("Upcoming events:")
-	// if len(events.Items) == 0 {
-	// 	fmt.Println("No upcoming events found.")
-	// } else {
-	// 	for _, item := range events.Items {
-	// 		date := item.Start.DateTime
-	// 		if date == "" {
-	// 			date = item.Start.Date
-	// 		}
-	// 		fmt.Printf("%v (%v)\n", item.Summary, date)
-	// 	}
-	// }
+	// after successful creation of google service - mark the oauth token field of users table to true
+	if !user.IsGcalOauthTokenActive {
+		user.IsGcalOauthTokenActive = true
+		err = uh.service.Save(user)
+		if err != nil {
+			log.Warningf("unable to update the google oauth token status for the userID: %s from false -> true, error:%s", user.ID, err)
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
+	}
 
 	c.Status(http.StatusOK)
 	return
