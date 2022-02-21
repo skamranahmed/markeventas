@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/skamranahmed/twitter-create-gcal-event-api/pkg/log"
+	"github.com/tkuchiki/go-timezone"
 )
 
 type ParsedUserTweetContent struct {
@@ -44,22 +45,27 @@ func ParseTweetText(tweetText string) (*ParsedUserTweetContent, error) {
 		return nil, errors.New("invalid time format")
 	}
 
-	timeZoneValue, err := processTimeZoneValue(strSlice[3])
+	timeZoneAbbr, err := processTimeZoneValue(strSlice[3])
 	if err != nil {
 		log.Error(err)
 		return nil, errors.New("invalid time zone format")
 	}
 
-	log.Infof("Space Name: %s, Date: %s, Time: %s, TimeZone: %s\n", spaceName, dateValue, timeValue, timeZoneValue)
+	log.Infof("Space Name: %s, Date: %s, Time: %s, TimeZone: %s\n", spaceName, dateValue, timeValue, timeZoneAbbr)
 
-	timeZoneIanaName, err := getIanaName("IST")
+	tz := timezone.New()
+	timezones, err := tz.GetTimezones(timeZoneAbbr)
 	if err != nil {
 		log.Error(err)
 		return nil, errors.New("time zone not available")
 	}
 
+	timeZoneIanaName := timezones[0]
+
 	// eg: Feb 2, 2022 at 6:54pm IST
-	dateTimeValue := fmt.Sprintf("%s at %s %s", dateValue, timeValue, timeZoneValue)
+	dateTimeValue := fmt.Sprintf("%s at %s %s", dateValue, timeValue, timeZoneAbbr)
+
+	const longFormTimeLayout = "Jan 2, 2006 at 3:04pm MST"
 
 	startTime, err := time.Parse(longFormTimeLayout, dateTimeValue)
 	if err != nil {
