@@ -5,24 +5,24 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/skamranahmed/twitter-create-gcal-event-api/internal/api/middlewares"
+	"github.com/skamranahmed/twitter-create-gcal-event-api/internal/service"
 	"github.com/skamranahmed/twitter-create-gcal-event-api/internal/token"
 	"github.com/skamranahmed/twitter-create-gcal-event-api/pkg/log"
+	"gorm.io/gorm"
 )
 
 type GoogleTokenHandler interface {
 	SaveRefreshToken(c *gin.Context)
 }
 
-func NewGoogleTokenHandler() GoogleTokenHandler {
-	return &googleTokenHandler{}
+func NewGoogleTokenHandler(userService service.UserService) GoogleTokenHandler {
+	return &googleTokenHandler{
+		userService: userService,
+	}
 }
 
-type googleTokenHandler struct{}
-
-type RefreshTokenRequest struct {
-	// we use this code to fetch the refresh token
-	// works only for the first time per-account
-	Code string `json:"code" binding:"required"`
+type googleTokenHandler struct {
+	userService service.UserService
 }
 
 func (gh *googleTokenHandler) SaveRefreshToken(c *gin.Context) {
@@ -41,12 +41,44 @@ func (gh *googleTokenHandler) SaveRefreshToken(c *gin.Context) {
 		return
 	}
 
-	var requestPayload RefreshTokenRequest
+	var requestPayload RefreshTokenCodeRequest
 	err := c.ShouldBindJSON(&requestPayload)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
+	// check whehter this user has an account with us
+	user, err := gh.userService.FindByTwitterID(jwtAuthToken.TwitterID)
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			log.Warningf("user does not have an account with us")
+			c.AbortWithStatus(http.StatusBadRequest)
+			return
+		}
+		log.Warningf("unable to fetch user from the db, userTwitterID: %s, err: %v", jwtAuthToken.TwitterID, err)
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	_, err = gh.userService.NewGoogleService(user.ID, requestPayload.Code)
+	if err != nil {
+		log.Errorf("unable to init google service for the userID: %d, in SaveGoogleCalendarRefreshToken, err: %v", user.ID, err)
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	// after successful creation of google service - mark the oauth token field of users table to true
+	if !user.IsGcalOauthTokenActive {
+		user.IsGcalOauthTokenActive = true
+		err = gh.userService.Save(user)
+		if err != nil {
+			log.Warningf("unable to update the google oauth token status for the userID: %s from false -> true, error:%s", user.ID, err)
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
+	}
+
+	c.Status(http.StatusOK)
 	return
 }
