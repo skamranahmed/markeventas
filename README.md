@@ -2,7 +2,7 @@
 
 Create a google calendar event for any twitter space automatically.
 
-You just need to reply "@creategcalevent <space_name> | <date> | <time> | <time_zone>" to any tweet that is about a twitter space.
+You just need to reply `@creategcalevent <space_name> | <date> | <time> | <time_zone>` to any tweet that is about a twitter space.
 
 
 ## Demo
