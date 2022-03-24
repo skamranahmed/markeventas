@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"github.com/skamranahmed/twitter-create-gcal-event-api/config"
+	_ "github.com/skamranahmed/twitter-create-gcal-event-api/config"
 	"github.com/skamranahmed/twitter-create-gcal-event-api/pkg/log"
 
 	"github.com/skamranahmed/twitter-create-gcal-event-api/internal/api"
@@ -10,15 +10,9 @@ import (
 
 // Run : intializes our application
 func Run() error {
-	cfg, err := config.LoadConfig()
-	if err != nil {
-		log.Errorf("unable to load config file, error: %v\n", err)
-		return err
-	}
-
 	// Init database
 	log.Info("⏳ connecting to db.....")
-	db, err := database.Init(cfg)
+	db, err := database.Init()
 	if err != nil {
 		return err
 	}
@@ -30,5 +24,5 @@ func Run() error {
 	if err != nil {
 		return err
 	}
-	return api.RunServer(cfg, db)
+	return api.RunServer(db)
 }
