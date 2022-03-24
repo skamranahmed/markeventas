@@ -9,7 +9,6 @@ import (
 	"github.com/dghubble/oauth1"
 
 	"github.com/gin-gonic/gin"
-	"github.com/skamranahmed/twitter-create-gcal-event-api/config"
 	"github.com/skamranahmed/twitter-create-gcal-event-api/internal/api/middlewares"
 	"github.com/skamranahmed/twitter-create-gcal-event-api/internal/models"
 	"github.com/skamranahmed/twitter-create-gcal-event-api/internal/service"
@@ -23,16 +22,14 @@ type UserHandler interface {
 	GetUserProfile(c *gin.Context)
 }
 
-func NewUserHandler(userService service.UserService, config *config.Config) UserHandler {
+func NewUserHandler(userService service.UserService) UserHandler {
 	return &userHandler{
 		service: userService,
-		config:  config,
 	}
 }
 
 type userHandler struct {
 	service service.UserService
-	config  *config.Config
 }
 
 var (

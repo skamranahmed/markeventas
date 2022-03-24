@@ -24,7 +24,7 @@ type googleService struct {
 	calendar     *calendar.Service
 }
 
-func NewGoogleService(userID uint, code string, tokenRepo repo.TokenRepository, config *config.Config) (GoogleService, error) {
+func NewGoogleService(userID uint, code string, tokenRepo repo.TokenRepository) (GoogleService, error) {
 	ctx := context.Background()
 	clientSecret := []byte(config.GoogleAppClientSecret)
 	oAuth2Config, err := google.ConfigFromJSON(clientSecret, calendar.CalendarScope)

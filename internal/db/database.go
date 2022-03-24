@@ -9,7 +9,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func Init(config *config.Config) (*gorm.DB, error) {
+func Init() (*gorm.DB, error) {
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Asia/Calcutta",
 		config.DbHost, config.DbUser, config.DbPassword, config.DbName, config.DbPort)
 

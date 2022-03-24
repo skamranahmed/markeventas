@@ -26,8 +26,8 @@ import (
 	###################################################
 */
 
-func RunServer(config *config.Config, db *gorm.DB) error {
-	router := InitRoutes(db, config)
+func RunServer(db *gorm.DB) error {
+	router := InitRoutes(db)
 	port := fmt.Sprintf(":%s", config.ServerPort)
 	return router.Run(port)
 }

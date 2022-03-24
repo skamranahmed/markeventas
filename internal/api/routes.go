@@ -32,9 +32,9 @@ type handlers struct {
 	googleTokenHandler gHandler.GoogleTokenHandler
 }
 
-func InitRoutes(db *gorm.DB, config *config.Config) *gin.Engine {
+func InitRoutes(db *gorm.DB) *gin.Engine {
 	tokenMaker = token.NewJwtTokenMaker(config.TokenSecretSigningKey)
-	_, services, handlers := setDependencies(db, config)
+	_, services, handlers := setDependencies(db)
 	router := gin.Default()
 	router.GET("/api/login", handlers.userHandler.TwitterOAuthLogin)
 	router.POST("/api/twitter/callback", handlers.userHandler.HandleTwitterOAuthCallback)
@@ -47,20 +47,20 @@ func InitRoutes(db *gorm.DB, config *config.Config) *gin.Engine {
 	}
 
 	// run the twitter bot in background
-	go startTwitterBot(config, services.userService, services.botLogService)
+	go startTwitterBot(services.userService, services.botLogService)
 
 	return router
 }
 
-func setDependencies(db *gorm.DB, config *config.Config) (*repos, *services, *handlers) {
+func setDependencies(db *gorm.DB) (*repos, *services, *handlers) {
 	repos := &repos{}
 	repos.setDependencies(db)
 
 	services := &services{}
-	services.setDependencies(repos, config)
+	services.setDependencies(repos)
 
 	handlers := &handlers{}
-	handlers.setDependencies(services, config)
+	handlers.setDependencies(services)
 
 	return repos, services, handlers
 }
@@ -76,17 +76,17 @@ func (r *repos) setDependencies(db *gorm.DB) {
 	r.botLogRepo = botLogRepo
 }
 
-func (s *services) setDependencies(repos *repos, config *config.Config) {
-	userService := service.NewUserService(repos.userRepo, repos.tokenRepo, config, tokenMaker)
+func (s *services) setDependencies(repos *repos) {
+	userService := service.NewUserService(repos.userRepo, repos.tokenRepo, tokenMaker)
 	s.userService = userService
 
 	botLogService := service.NewBotLogService(repos.botLogRepo)
 	s.botLogService = botLogService
 }
 
-func (h *handlers) setDependencies(services *services, config *config.Config) {
+func (h *handlers) setDependencies(services *services) {
 	// init user handler
-	userHandler := uHandler.NewUserHandler(services.userService, config)
+	userHandler := uHandler.NewUserHandler(services.userService)
 	h.userHandler = userHandler
 
 	// init googleToken handler

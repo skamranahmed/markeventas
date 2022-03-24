@@ -16,11 +16,10 @@ import (
 )
 
 // NewUserService : returns a userService struct that implements the UserService interface
-func NewUserService(userRepo repo.UserRepository, tokenRepo repo.TokenRepository, config *config.Config, tokenMaker token.Maker) UserService {
+func NewUserService(userRepo repo.UserRepository, tokenRepo repo.TokenRepository, tokenMaker token.Maker) UserService {
 	return &userService{
 		userRepo:   userRepo,
 		tokenRepo:  tokenRepo,
-		config:     config,
 		tokenMaker: tokenMaker,
 	}
 }
@@ -28,12 +27,11 @@ func NewUserService(userRepo repo.UserRepository, tokenRepo repo.TokenRepository
 type userService struct {
 	userRepo   repo.UserRepository
 	tokenRepo  repo.TokenRepository
-	config     *config.Config
 	tokenMaker token.Maker
 }
 
 func (us *userService) NewGoogleService(userID uint, code string) (GoogleService, error) {
-	googleService, err := NewGoogleService(userID, code, us.tokenRepo, us.config)
+	googleService, err := NewGoogleService(userID, code, us.tokenRepo)
 	if err != nil {
 		log.Errorf("unable to init google service for userID: %d, error: %v", userID, err)
 		return nil, err
@@ -80,8 +78,8 @@ func (us *userService) DoesUserAlreadyExist(twitterID string) (bool, *models.Use
 
 func (us *userService) LoginWithTwitter() (string, error) {
 	twitterClient := twitterClient.NewTwitterOAuthClient(
-		us.config.TwitterLoginAppApiKey,
-		us.config.TwitterLoginAppApiKeySecret,
+		config.TwitterLoginAppApiKey,
+		config.TwitterLoginAppApiKeySecret,
 		"http://localhost:8080/twitter/callback",
 	)
 	requestToken, err := twitterClient.GetRequestToken()
@@ -97,8 +95,8 @@ func (us *userService) LoginWithTwitter() (string, error) {
 
 func (us *userService) FetchTwitterOAuthToken(requestToken, requestSecret, verifier string) (*oauth1.Token, error) {
 	twitterClient := twitterClient.NewTwitterOAuthClient(
-		us.config.TwitterLoginAppApiKey,
-		us.config.TwitterLoginAppApiKeySecret,
+		config.TwitterLoginAppApiKey,
+		config.TwitterLoginAppApiKeySecret,
 		"http://localhost:8080/twitter/callback",
 	)
 	token, err := twitterClient.GetToken(requestToken, requestSecret, verifier)
@@ -110,8 +108,8 @@ func (us *userService) FetchTwitterOAuthToken(requestToken, requestSecret, verif
 
 func (us *userService) GetUserDetailsFromTwitter(token *oauth1.Token) (*twitter.User, error) {
 	twitterClient := twitterClient.NewTwitterOAuthClient(
-		us.config.TwitterLoginAppApiKey,
-		us.config.TwitterLoginAppApiKeySecret,
+		config.TwitterLoginAppApiKey,
+		config.TwitterLoginAppApiKeySecret,
 		"http://localhost:8080/twitter/callback",
 	)
 	user, err := twitterClient.GetUser(token)

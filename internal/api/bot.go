@@ -16,7 +16,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func startTwitterBot(config *config.Config, userService service.UserService, botLogService service.BotLogService) {
+func startTwitterBot(userService service.UserService, botLogService service.BotLogService) {
 	twitterBot, err := twitterClient.NewTwitterBotClient(
 		config.TwitterBotAccessToken,
 		config.TwitterBotAccessTokenSecret,
