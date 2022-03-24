@@ -39,11 +39,11 @@ func InitRoutes(db *gorm.DB, config *config.Config) *gin.Engine {
 	router.GET("/api/login", handlers.userHandler.TwitterOAuthLogin)
 	router.POST("/api/twitter/callback", handlers.userHandler.HandleTwitterOAuthCallback)
 
-	authorized := router.Group("/api/google/calendar")
+	authorized := router.Group("/api")
 	authorized.Use(middlewares.AuthMiddleware(tokenMaker))
 	{
-		// authorized.POST("/auth-code", handlers.userHandler.SaveGoogleCalendarRefreshToken)
-		authorized.POST("/auth-code", handlers.googleTokenHandler.SaveRefreshToken)
+		authorized.POST("/save/google-calendar/tokens", handlers.googleTokenHandler.SaveRefreshToken)
+		authorized.GET("/profile/me", handlers.userHandler.GetUserProfile)
 	}
 
 	// run the twitter bot in background

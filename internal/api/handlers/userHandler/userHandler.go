@@ -20,6 +20,7 @@ type UserHandler interface {
 	TwitterOAuthLogin(c *gin.Context)
 	HandleTwitterOAuthCallback(c *gin.Context)
 	SaveGoogleCalendarRefreshToken(c *gin.Context)
+	GetUserProfile(c *gin.Context)
 }
 
 func NewUserHandler(userService service.UserService, config *config.Config) UserHandler {
@@ -44,7 +45,7 @@ func (uh *userHandler) TwitterOAuthLogin(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err})
 		return
 	}
-	c.Redirect(http.StatusFound, authorizationRedirectURL)
+	c.JSON(http.StatusOK, gin.H{"redirect_url": authorizationRedirectURL})
 	return
 }
 
@@ -202,5 +203,44 @@ func (uh *userHandler) SaveGoogleCalendarRefreshToken(c *gin.Context) {
 	}
 
 	c.Status(http.StatusOK)
+	return
+}
+
+func (uh *userHandler) GetUserProfile(c *gin.Context) {
+	// extract the payload from the context that was set by the AuthMiddleware
+	authPayload, exists := c.Get(middlewares.AuthorizationPayloadKey)
+	if !exists {
+		log.Errorf("authorization payload is not present")
+		c.AbortWithStatus(http.StatusUnauthorized)
+		return
+	}
+
+	authToken, ok := authPayload.(*token.Payload)
+	if !ok {
+		log.Errorf("invalid authorization payload, got payload: %+v", authPayload)
+		c.AbortWithStatus(http.StatusUnauthorized)
+		return
+	}
+
+	// fetch the user profile from the twitterID present in the authToken
+	user, err := uh.service.FindByTwitterID(authToken.TwitterID)
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			log.Warningf("user does not have an account with us")
+		} else {
+			log.Warningf("unable to fetch user from the db, userTwitterID: %s, err: %v", authToken.TwitterID, err)
+		}
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	response := &UserProfileResponse{
+		ID:                       user.ID,
+		TwitterID:                user.TwitterID,
+		TwitterScreenName:        user.TwitterScreenName,
+		IsGoogleOauthTokenActive: user.IsGcalOauthTokenActive,
+	}
+
+	c.JSON(http.StatusOK, gin.H{"user_profile": response})
 	return
 }
