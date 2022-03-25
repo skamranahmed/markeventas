@@ -29,7 +29,7 @@ func startTwitterBot(userService service.UserService, botLogService service.BotL
 	}
 
 	// create a ticker that will fetch the twitter timeline mentions and then send a reply
-	ticker := time.NewTicker(3 * time.Second)
+	ticker := time.NewTicker(30 * time.Second)
 	go func() {
 		for t := range ticker.C {
 			sinceTweetID, err := botLogService.GetLatestRepliedToTweetID()
