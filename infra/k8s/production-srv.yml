@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: twitter-space-gcal-event-srv
+spec:
+  type: NodePort # this will expose the ports to the outside world, probably not to be done in a production env
+  selector:
+    app: twitter-space-gcal-event
+  ports:
+    - name: twitter-space-gcal-event
+      protocol: TCP
+      port: 7000 # port of the NodePort service that is to be exposed
+      targetPort: 7000 # port of the container that is running inside the pod

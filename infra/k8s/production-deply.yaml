@@ -1,0 +1,88 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: twitter-space-gcal-event-depl # name of the deployment
+spec:
+  replicas: 1 # no of pods we want to run
+  selector:
+    matchLabels:
+      app: twitter-space-gcal-event
+  template:
+    metadata:
+      labels:
+        app: twitter-space-gcal-event
+    spec:
+      containers:
+        - name: twitter-space-gcal-event # the name of the container
+          # TODO: change the image source to be from AWS ECR
+          image: skamranahmed/twitter-space-gcal-event:latest # use this image to build the container
+          env:
+            - name: ENVIRONMENT
+              value: production
+            - name: SERVER_PORT
+              value: "7000"
+            - name: DB_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: db-host
+                  key: DB_HOST
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: db-user
+                  key: DB_USER
+            - name: DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: db-name
+                  key: DB_NAME
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-password
+                  key: DB_PASSWORD
+            - name: DB_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: db-port
+                  key: DB_PORT
+            - name: TOKEN_SECRET_SIGNING_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: token-secret-signing-key
+                  key: TOKEN_SECRET_SIGNING_KEY
+            - name: GOOGLE_APP_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: google-app-client-secret
+                  key: GOOGLE_APP_CLIENT_SECRET
+            - name: TWITTER_LOGIN_APP_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: twitter-login-app-api-key
+                  key: TWITTER_LOGIN_APP_API_KEY
+            - name: TWITTER_LOGIN_APP_API_KEY_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: twitter-login-app-api-key-secret
+                  key: TWITTER_LOGIN_APP_API_KEY_SECRET
+            - name: TWITTER_BOT_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: twitter-bot-api-key
+                  key: TWITTER_BOT_API_KEY
+            - name: TWITTER_BOT_API_KEY_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: twitter-bot-api-key-secret
+                  key: TWITTER_BOT_API_KEY_SECRET
+            - name: TWITTER_BOT_ACCESS_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: twitter-bot-access-token
+                  key: TWITTER_BOT_ACCESS_TOKEN
+            - name: TWITTER_BOT_ACCESS_TOKEN_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: twitter-bot-access-token-secret
+                  key: TWITTER_BOT_ACCESS_TOKEN_SECRET

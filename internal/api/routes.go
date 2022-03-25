@@ -1,6 +1,8 @@
 package api
 
 import (
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"github.com/skamranahmed/twitter-create-gcal-event-api/config"
 	gHandler "github.com/skamranahmed/twitter-create-gcal-event-api/internal/api/handlers/googletokenHandler"
@@ -38,6 +40,12 @@ func InitRoutes(db *gorm.DB) *gin.Engine {
 	router := gin.Default()
 	router.GET("/api/login", handlers.userHandler.TwitterOAuthLogin)
 	router.POST("/api/twitter/callback", handlers.userHandler.HandleTwitterOAuthCallback)
+
+	// health route
+	router.GET("/api/health", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{"health": "ok"})
+		return
+	})
 
 	authorized := router.Group("/api")
 	authorized.Use(middlewares.AuthMiddleware(tokenMaker))

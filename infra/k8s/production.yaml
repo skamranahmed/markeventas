@@ -6,7 +6,7 @@ spec:
   containers:
     - name: twitter-space-gcal-event # the name of the container
       # TODO: change the image source to be from AWS ECR
-      image: skamranahmed/twitter-space-gcal-event:0.0.2 # use this image to build the container
+      image: skamranahmed/twitter-space-gcal-event:latest # use this image to build the container
       env:
         - name: ENVIRONMENT
           value: production
