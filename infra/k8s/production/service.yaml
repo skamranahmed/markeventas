@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: twitter-space-gcal-event-service
+spec:
+  type: LoadBalancer # this will provison a LB from the cloud provider and expose it to the public to start accepting incoming requests
+  selector:
+    app: twitter-space-gcal-event
+  ports:
+    - name: twitter-space-gcal-event
+      protocol: TCP
+      port: 80 # port on which the LB service is running
+      targetPort: 7000 # port of the container that is running inside the pod
