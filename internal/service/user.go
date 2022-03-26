@@ -6,12 +6,12 @@ import (
 
 	"github.com/dghubble/go-twitter/twitter"
 	"github.com/dghubble/oauth1"
-	"github.com/skamranahmed/twitter-create-gcal-event-api/config"
-	"github.com/skamranahmed/twitter-create-gcal-event-api/internal/models"
-	"github.com/skamranahmed/twitter-create-gcal-event-api/internal/repo"
-	"github.com/skamranahmed/twitter-create-gcal-event-api/internal/token"
-	"github.com/skamranahmed/twitter-create-gcal-event-api/pkg/log"
-	"github.com/skamranahmed/twitter-create-gcal-event-api/pkg/twitterClient"
+	"github.com/skamranahmed/markeventas/config"
+	"github.com/skamranahmed/markeventas/internal/models"
+	"github.com/skamranahmed/markeventas/internal/repo"
+	"github.com/skamranahmed/markeventas/internal/token"
+	"github.com/skamranahmed/markeventas/pkg/log"
+	"github.com/skamranahmed/markeventas/pkg/twitterClient"
 	"gorm.io/gorm"
 )
 

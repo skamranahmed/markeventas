@@ -7,7 +7,7 @@ import (
 	"github.com/dghubble/go-twitter/twitter"
 	"github.com/dghubble/oauth1"
 	twitterAuth "github.com/dghubble/oauth1/twitter"
-	"github.com/skamranahmed/twitter-create-gcal-event-api/pkg/log"
+	"github.com/skamranahmed/markeventas/pkg/log"
 )
 
 var (

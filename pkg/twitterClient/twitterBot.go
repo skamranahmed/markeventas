@@ -7,7 +7,7 @@ import (
 
 	"github.com/dghubble/go-twitter/twitter"
 	"github.com/dghubble/oauth1"
-	"github.com/skamranahmed/twitter-create-gcal-event-api/pkg/log"
+	"github.com/skamranahmed/markeventas/pkg/log"
 )
 
 func NewTwitterBotClient(accessToken, accessTokenSecret, consumerKey, consumerSecret string) (TwitterBotClient, error) {
@@ -64,7 +64,7 @@ func (tb *twitterBot) ReplyToTweet(tweetID int64, replyBody string) (*twitter.Tw
 		InReplyToStatusID: tweetID,
 	})
 	statusCode := httpResp.StatusCode
-	
+
 	respBody, _ := httputil.DumpResponse(httpResp, true)
 	responseBody := string(respBody)
 

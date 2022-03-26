@@ -6,8 +6,8 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/skamranahmed/twitter-create-gcal-event-api/internal/token"
-	"github.com/skamranahmed/twitter-create-gcal-event-api/pkg/log"
+	"github.com/skamranahmed/markeventas/internal/token"
+	"github.com/skamranahmed/markeventas/pkg/log"
 )
 
 const (

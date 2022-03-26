@@ -3,7 +3,7 @@ package api
 import (
 	"fmt"
 
-	"github.com/skamranahmed/twitter-create-gcal-event-api/config"
+	"github.com/skamranahmed/markeventas/config"
 	"gorm.io/gorm"
 )
 

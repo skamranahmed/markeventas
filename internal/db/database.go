@@ -3,8 +3,8 @@ package db
 import (
 	"fmt"
 
-	"github.com/skamranahmed/twitter-create-gcal-event-api/config"
-	"github.com/skamranahmed/twitter-create-gcal-event-api/pkg/log"
+	"github.com/skamranahmed/markeventas/config"
+	"github.com/skamranahmed/markeventas/pkg/log"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )

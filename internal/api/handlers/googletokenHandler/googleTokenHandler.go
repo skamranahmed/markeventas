@@ -4,10 +4,10 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/skamranahmed/twitter-create-gcal-event-api/internal/api/middlewares"
-	"github.com/skamranahmed/twitter-create-gcal-event-api/internal/service"
-	"github.com/skamranahmed/twitter-create-gcal-event-api/internal/token"
-	"github.com/skamranahmed/twitter-create-gcal-event-api/pkg/log"
+	"github.com/skamranahmed/markeventas/internal/api/middlewares"
+	"github.com/skamranahmed/markeventas/internal/service"
+	"github.com/skamranahmed/markeventas/internal/token"
+	"github.com/skamranahmed/markeventas/pkg/log"
 	"gorm.io/gorm"
 )
 

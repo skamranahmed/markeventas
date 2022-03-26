@@ -1,8 +1,8 @@
 package db
 
 import (
-	"github.com/skamranahmed/twitter-create-gcal-event-api/internal/models"
-	"github.com/skamranahmed/twitter-create-gcal-event-api/pkg/log"
+	"github.com/skamranahmed/markeventas/internal/models"
+	"github.com/skamranahmed/markeventas/pkg/log"
 	"gorm.io/gorm"
 )
 

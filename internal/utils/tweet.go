@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/skamranahmed/twitter-create-gcal-event-api/pkg/log"
+	"github.com/skamranahmed/markeventas/pkg/log"
 	"github.com/tkuchiki/go-timezone"
 )
 

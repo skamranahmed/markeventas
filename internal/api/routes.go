@@ -4,13 +4,13 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/skamranahmed/twitter-create-gcal-event-api/config"
-	gHandler "github.com/skamranahmed/twitter-create-gcal-event-api/internal/api/handlers/googletokenHandler"
-	uHandler "github.com/skamranahmed/twitter-create-gcal-event-api/internal/api/handlers/userHandler"
-	"github.com/skamranahmed/twitter-create-gcal-event-api/internal/api/middlewares"
-	"github.com/skamranahmed/twitter-create-gcal-event-api/internal/repo"
-	"github.com/skamranahmed/twitter-create-gcal-event-api/internal/service"
-	"github.com/skamranahmed/twitter-create-gcal-event-api/internal/token"
+	"github.com/skamranahmed/markeventas/config"
+	gHandler "github.com/skamranahmed/markeventas/internal/api/handlers/googletokenHandler"
+	uHandler "github.com/skamranahmed/markeventas/internal/api/handlers/userHandler"
+	"github.com/skamranahmed/markeventas/internal/api/middlewares"
+	"github.com/skamranahmed/markeventas/internal/repo"
+	"github.com/skamranahmed/markeventas/internal/service"
+	"github.com/skamranahmed/markeventas/internal/token"
 	"gorm.io/gorm"
 )
 

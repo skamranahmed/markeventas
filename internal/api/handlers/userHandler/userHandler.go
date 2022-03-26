@@ -3,16 +3,16 @@ package handler
 import (
 	"net/http"
 
-	"github.com/skamranahmed/twitter-create-gcal-event-api/internal/token"
+	"github.com/skamranahmed/markeventas/internal/token"
 	"gorm.io/gorm"
 
 	"github.com/dghubble/oauth1"
 
 	"github.com/gin-gonic/gin"
-	"github.com/skamranahmed/twitter-create-gcal-event-api/internal/api/middlewares"
-	"github.com/skamranahmed/twitter-create-gcal-event-api/internal/models"
-	"github.com/skamranahmed/twitter-create-gcal-event-api/internal/service"
-	"github.com/skamranahmed/twitter-create-gcal-event-api/pkg/log"
+	"github.com/skamranahmed/markeventas/internal/api/middlewares"
+	"github.com/skamranahmed/markeventas/internal/models"
+	"github.com/skamranahmed/markeventas/internal/service"
+	"github.com/skamranahmed/markeventas/pkg/log"
 )
 
 type UserHandler interface {

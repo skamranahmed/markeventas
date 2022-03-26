@@ -6,12 +6,12 @@ import (
 	"os"
 	"time"
 
-	"github.com/skamranahmed/twitter-create-gcal-event-api/config"
-	"github.com/skamranahmed/twitter-create-gcal-event-api/internal/models"
-	"github.com/skamranahmed/twitter-create-gcal-event-api/internal/service"
-	"github.com/skamranahmed/twitter-create-gcal-event-api/internal/utils"
-	"github.com/skamranahmed/twitter-create-gcal-event-api/pkg/log"
-	"github.com/skamranahmed/twitter-create-gcal-event-api/pkg/twitterClient"
+	"github.com/skamranahmed/markeventas/config"
+	"github.com/skamranahmed/markeventas/internal/models"
+	"github.com/skamranahmed/markeventas/internal/service"
+	"github.com/skamranahmed/markeventas/internal/utils"
+	"github.com/skamranahmed/markeventas/pkg/log"
+	"github.com/skamranahmed/markeventas/pkg/twitterClient"
 	"google.golang.org/api/calendar/v3"
 	"gorm.io/gorm"
 )

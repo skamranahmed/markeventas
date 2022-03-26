@@ -1,7 +1,7 @@
 package repo
 
 import (
-	"github.com/skamranahmed/twitter-create-gcal-event-api/internal/models"
+	"github.com/skamranahmed/markeventas/internal/models"
 )
 
 // UserRepository

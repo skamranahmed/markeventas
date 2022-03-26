@@ -1,4 +1,4 @@
-module github.com/skamranahmed/twitter-create-gcal-event-api
+module github.com/skamranahmed/markeventas
 
 go 1.17
 

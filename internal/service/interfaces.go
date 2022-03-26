@@ -3,7 +3,7 @@ package service
 import (
 	"github.com/dghubble/go-twitter/twitter"
 	"github.com/dghubble/oauth1"
-	"github.com/skamranahmed/twitter-create-gcal-event-api/internal/models"
+	"github.com/skamranahmed/markeventas/internal/models"
 	"google.golang.org/api/calendar/v3"
 )
 

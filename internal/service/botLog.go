@@ -1,8 +1,8 @@
 package service
 
 import (
-	"github.com/skamranahmed/twitter-create-gcal-event-api/internal/models"
-	"github.com/skamranahmed/twitter-create-gcal-event-api/internal/repo"
+	"github.com/skamranahmed/markeventas/internal/models"
+	"github.com/skamranahmed/markeventas/internal/repo"
 )
 
 func NewBotLogService(botLogRepo repo.BotLogRepository) BotLogService {

@@ -1,11 +1,11 @@
 package cmd
 
 import (
-	_ "github.com/skamranahmed/twitter-create-gcal-event-api/config"
-	"github.com/skamranahmed/twitter-create-gcal-event-api/pkg/log"
+	_ "github.com/skamranahmed/markeventas/config"
+	"github.com/skamranahmed/markeventas/pkg/log"
 
-	"github.com/skamranahmed/twitter-create-gcal-event-api/internal/api"
-	database "github.com/skamranahmed/twitter-create-gcal-event-api/internal/db"
+	"github.com/skamranahmed/markeventas/internal/api"
+	database "github.com/skamranahmed/markeventas/internal/db"
 )
 
 // Run : intializes our application
