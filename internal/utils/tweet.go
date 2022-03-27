@@ -6,6 +6,7 @@ import (
 	"regexp"
 	"strings"
 	"time"
+	"unicode"
 
 	"github.com/skamranahmed/markeventas/pkg/log"
 	"github.com/tkuchiki/go-timezone"
@@ -119,6 +120,19 @@ func processDateValue(dateValue string) (string, error) {
 		// No need to split including space
 		dateValue = strings.Split(dateValue, "|")[0]
 	}
+
+	// change the month name into the format which is accepted by go standard package
+	monthName := strings.TrimSpace(digitPrefix(dateValue))
+	formattedMonthName, ok := months[strings.ToUpper(monthName)]
+	if !ok {
+		// if the month name is not present in the map
+		// probably the user has entered some invalid month name
+		return "", errors.New("invalid month")
+	}
+
+	// replace the user entered monthName with the formattedMonthName in the dateValue string
+	dateValue = strings.Replace(dateValue, monthName, formattedMonthName, -1)
+
 	return dateValue, nil
 }
 
@@ -162,4 +176,14 @@ func processTimeZoneValue(timeZoneValue string) (string, error) {
 	}
 
 	return timeZoneValue, nil
+}
+
+// digitPrefix : returns the string before the occurence of the first digit in the passed string
+func digitPrefix(s string) string {
+	for i, r := range s {
+		if unicode.IsDigit(r) {
+			return s[:i]
+		}
+	}
+	return s
 }
