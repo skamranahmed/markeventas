@@ -27,7 +27,7 @@ type googleService struct {
 func NewGoogleService(userID uint, code string, tokenRepo repo.TokenRepository) (GoogleService, error) {
 	ctx := context.Background()
 	clientSecret := []byte(config.GoogleAppClientSecret)
-	oAuth2Config, err := google.ConfigFromJSON(clientSecret, calendar.CalendarScope)
+	oAuth2Config, err := google.ConfigFromJSON(clientSecret, calendar.CalendarEventsScope)
 	if err != nil {
 		log.Errorf("unable to parse client secret file to config: %v", err)
 		return nil, errors.New(err.Error())

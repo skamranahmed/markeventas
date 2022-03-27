@@ -48,7 +48,7 @@ func (gh *googleTokenHandler) SaveRefreshToken(c *gin.Context) {
 		return
 	}
 
-	// check whehter this user has an account with us
+	// check whether this user has an account with us
 	user, err := gh.userService.FindByTwitterID(jwtAuthToken.TwitterID)
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
@@ -68,7 +68,7 @@ func (gh *googleTokenHandler) SaveRefreshToken(c *gin.Context) {
 		return
 	}
 
-	// after successful creation of google service - mark the oauth token field of users table to true
+	// after successful creation of google service - mark the `is_google_oauth_token_active` field of users table to true
 	if !user.IsGcalOauthTokenActive {
 		user.IsGcalOauthTokenActive = true
 		err = gh.userService.Save(user)

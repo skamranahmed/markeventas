@@ -87,13 +87,13 @@ func ParseTweetText(tweetText string) (*ParsedUserTweetContent, error) {
 }
 
 func processTweetText(tweetText string) string {
-	// eg: "@creategcalevent Kamran's Space | Feb 28, 2022 | 6:43 PM | IST"
-	pattern := regexp.MustCompile(`(@creategcalevent).*`)
+	// eg: "@markeventas Kamran's Space | Feb 28, 2022 | 6:43 PM | IST"
+	pattern := regexp.MustCompile(`(@markeventas).*`)
 	matches := pattern.FindAllString(tweetText, -1)
-	matchedText := matches[0] // [@creategcalevent Kamran's Space | Feb 28, 2022 | 6:43 PM | IST]
+	matchedText := matches[0] // [@markeventas Kamran's Space | Feb 28, 2022 | 6:43 PM | IST]
 
-	tweetContents := strings.Split(matchedText, "@creategcalevent") // [@creategcalevent, Kamran's Space | Feb 28, 2022 | 6:43 PM | IST]
-	tweetText = strings.TrimLeft(tweetContents[1], " ")             // Kamran's Space | Feb 28, 2022 | 6:43 PM | IST
+	tweetContents := strings.Split(matchedText, "@markeventas") // [@markeventas, Kamran's Space | Feb 28, 2022 | 6:43 PM | IST]
+	tweetText = strings.TrimLeft(tweetContents[1], " ")         // Kamran's Space | Feb 28, 2022 | 6:43 PM | IST
 	tweetText = strings.TrimSpace(tweetText)
 
 	return tweetText
