@@ -12,6 +12,11 @@ import (
 	"github.com/tkuchiki/go-timezone"
 )
 
+var (
+	ErrInvalidDateOrTime error = errors.New("invalid date or time")
+	ErrInvalidMonth      error = errors.New("invalid month")
+)
+
 type ParsedUserTweetContent struct {
 	SpaceName           string
 	StartDateTimeString string
@@ -20,7 +25,12 @@ type ParsedUserTweetContent struct {
 }
 
 func ParseTweetText(tweetText string) (*ParsedUserTweetContent, error) {
-	// @creategcalevent <space_name> | <date> | <time> | <time_zone>
+	/*
+		@markeventas <space_name> | <date> | <time> | <time_zone>
+
+		<date> is of the format <month_name date, year>, eg: September 15, 2022
+	*/
+
 	tweetText = processTweetText(tweetText)
 
 	strSlice := strings.SplitAfter(tweetText, "|")
@@ -36,8 +46,8 @@ func ParseTweetText(tweetText string) (*ParsedUserTweetContent, error) {
 
 	dateValue, err := processDateValue(strSlice[1])
 	if err != nil {
-		log.Error(err)
-		return nil, errors.New("invalid date format")
+		log.Error("error in processing date value, got: %s, err: %v", strSlice[1], err)
+		return nil, err
 	}
 
 	timeValue, err := processTimeString(strSlice[2])
@@ -66,17 +76,10 @@ func ParseTweetText(tweetText string) (*ParsedUserTweetContent, error) {
 	// eg: Feb 2, 2022 at 6:54pm IST
 	dateTimeValue := fmt.Sprintf("%s at %s %s", dateValue, timeValue, timeZoneAbbr)
 
-	const longFormTimeLayout = "Jan 2, 2006 at 3:04pm MST"
-
-	startTime, err := time.Parse(longFormTimeLayout, dateTimeValue)
+	startDateTimeString, endDateTimeString, err := processDateTimeValue(dateTimeValue)
 	if err != nil {
-		log.Error(err)
-		return nil, errors.New("invalid time format")
+		return nil, err
 	}
-	startDateTimeString := startTime.Format(time.RFC3339)
-
-	endTime := startTime.Add(30 * time.Minute)
-	endDateTimeString := endTime.Format(time.RFC3339)
 
 	data := &ParsedUserTweetContent{
 		SpaceName:           spaceName,
@@ -121,19 +124,27 @@ func processDateValue(dateValue string) (string, error) {
 		dateValue = strings.Split(dateValue, "|")[0]
 	}
 
-	// change the month name into the format which is accepted by go standard package
 	monthName := strings.TrimSpace(digitPrefix(dateValue))
-	formattedMonthName, ok := months[strings.ToUpper(monthName)]
-	if !ok {
-		// if the month name is not present in the map
-		// probably the user has entered some invalid month name
-		return "", errors.New("invalid month")
+	formattedMonthName, err := processMonthName(monthName)
+	if err != nil {
+		return "", err
 	}
 
 	// replace the user entered monthName with the formattedMonthName in the dateValue string
 	dateValue = strings.Replace(dateValue, monthName, formattedMonthName, -1)
 
 	return dateValue, nil
+}
+
+func processMonthName(monthName string) (string, error) {
+	// change the month name into the format which is accepted by go standard package
+	formattedMonthName, ok := months[strings.ToUpper(monthName)]
+	if !ok {
+		// if the month name is not present in the map
+		// probably the user has entered some invalid month name
+		return "", ErrInvalidMonth
+	}
+	return formattedMonthName, nil
 }
 
 func processTimeString(timeString string) (string, error) {
@@ -176,6 +187,25 @@ func processTimeZoneValue(timeZoneValue string) (string, error) {
 	}
 
 	return timeZoneValue, nil
+}
+
+func processDateTimeValue(dateTimeValue string) (string, string, error) {
+	const longFormTimeLayout = "Jan 2, 2006 at 3:04pm MST"
+
+	startTime, err := time.Parse(longFormTimeLayout, dateTimeValue)
+	if err != nil {
+		log.Error("error in processing date-time value, got: %s, err: %v", dateTimeValue, err)
+		return "", "", ErrInvalidDateOrTime
+	}
+
+	// start time of the event
+	startDateTimeString := startTime.Format(time.RFC3339)
+
+	// end time of the event = start time + 30 mins
+	endTime := startTime.Add(30 * time.Minute)
+	endDateTimeString := endTime.Format(time.RFC3339)
+
+	return startDateTimeString, endDateTimeString, nil
 }
 
 // digitPrefix : returns the string before the occurence of the first digit in the passed string

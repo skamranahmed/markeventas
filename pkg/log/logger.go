@@ -1,7 +1,6 @@
 package log
 
 import (
-	"flag"
 	"fmt"
 
 	"github.com/golang/glog"
@@ -21,11 +20,6 @@ const (
 	// Base error string
 	BaseString = ` * `
 )
-
-func init() {
-	flag.Parse()
-	flag.Lookup("alsologtostderr").Value.Set("true")
-}
 
 // Info : Wrapper around glog Info
 func Info(args ...interface{}) {

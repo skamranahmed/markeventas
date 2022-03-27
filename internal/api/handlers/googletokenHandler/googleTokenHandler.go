@@ -73,7 +73,7 @@ func (gh *googleTokenHandler) SaveRefreshToken(c *gin.Context) {
 		user.IsGcalOauthTokenActive = true
 		err = gh.userService.Save(user)
 		if err != nil {
-			log.Warningf("unable to update the google oauth token status for the userID: %s from false -> true, error:%s", user.ID, err)
+			log.Warningf("unable to update the google oauth token status for the userID: %d from false -> true, error:%v", user.ID, err)
 			c.AbortWithStatus(http.StatusInternalServerError)
 			return
 		}

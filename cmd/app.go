@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"flag"
+
 	_ "github.com/skamranahmed/markeventas/config"
 	"github.com/skamranahmed/markeventas/pkg/log"
 
@@ -10,6 +12,9 @@ import (
 
 // Run : intializes our application
 func Run() error {
+	flag.Parse()
+	flag.Lookup("alsologtostderr").Value.Set("true")
+
 	// Init database
 	log.Info("⏳ connecting to db.....")
 	db, err := database.Init()

@@ -87,7 +87,7 @@ func (uh *userHandler) HandleTwitterOAuthCallback(c *gin.Context) {
 			err = uh.service.Save(user)
 			if err != nil {
 				log.Warningf(
-					"unable to update the twitterScreenName of the userID: %s from %s -> %s, error:%s",
+					"unable to update the twitterScreenName of the userID: %d from %s -> %s, error:%v",
 					user.ID, user.TwitterScreenName, twitterUser.ScreenName, err,
 				)
 			}
@@ -193,7 +193,7 @@ func (uh *userHandler) SaveGoogleCalendarRefreshToken(c *gin.Context) {
 		user.IsGcalOauthTokenActive = true
 		err = uh.service.Save(user)
 		if err != nil {
-			log.Warningf("unable to update the google oauth token status for the userID: %s from false -> true, error:%s", user.ID, err)
+			log.Warningf("unable to update the google oauth token status for the userID: %d from false -> true, error:%v", user.ID, err)
 			c.AbortWithStatus(http.StatusInternalServerError)
 			return
 		}
