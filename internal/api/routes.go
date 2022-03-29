@@ -3,6 +3,7 @@ package api
 import (
 	"net/http"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/skamranahmed/markeventas/config"
 	gHandler "github.com/skamranahmed/markeventas/internal/api/handlers/googletokenHandler"
@@ -38,6 +39,10 @@ func InitRoutes(db *gorm.DB) *gin.Engine {
 	tokenMaker = token.NewJwtTokenMaker(config.TokenSecretSigningKey)
 	_, services, handlers := setDependencies(db)
 	router := gin.Default()
+
+	// CORS middleware
+	router.Use(cors.Default())
+
 	router.GET("/api/login", handlers.userHandler.TwitterOAuthLogin)
 	router.POST("/api/twitter/callback", handlers.userHandler.HandleTwitterOAuthCallback)
 
