@@ -3,7 +3,8 @@ kind: Service
 metadata:
   name: twitter-space-gcal-event-service
 spec:
-  type: LoadBalancer # this will provison a LB from the cloud provider and expose it to the public to start accepting incoming requests
+  # type: LoadBalancer # this will provison a LB from the cloud provider and expose it to the public to start accepting incoming requests
+  type: ClusterIP # don't expose this service to the outside world
   selector:
     app: twitter-space-gcal-event
   ports:
