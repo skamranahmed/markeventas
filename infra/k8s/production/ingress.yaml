@@ -10,17 +10,22 @@ kind: Ingress
 metadata:
   name: twitter-space-gcal-event-ingress
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    cert-manager.io/cluster-issuer: letsencrypt
 spec:
   ingressClassName: nginx
   rules:
-  - host: "api.markevent.link"
-  - http:
+  - host: api.markevent.link
+    http:
       paths:
       - pathType: Prefix
-        path: "/"
+        path: /(|$)(.*)
         backend:
           service:
             name: twitter-space-gcal-event-service
             port:
               number: 80
+  tls:
+  - hosts:
+    - api.markevent.link
+    secretName: twitter-space-gcal-event-api-cert
