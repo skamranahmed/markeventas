@@ -50,10 +50,7 @@ jobs:
       - name: Deploy image to Amazon EKS
         run: |
           kubectl apply -f infra/k8s/production/aws-auth.yaml
-          kubectl apply -f infra/k8s/production/deployment.yaml
+          kubectl rollout restart deployment twitter-space-gcal-event-deployment
           kubectl apply -f infra/k8s/production/service.yaml
           kubectl apply -f infra/k8s/production/issuer.yaml
           kubectl apply -f infra/k8s/production/ingress.yaml
-
-
-        
