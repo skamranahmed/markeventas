@@ -94,7 +94,7 @@ func startTwitterBot(userService service.UserService, botLogService service.BotL
 					// user account does not exist
 					// send user doesn't have an account with us reply to the user
 					log.Warningf("user account for twitterID: %s does not exist, sending UserAccountDoesNotExistReply", userTwitterID)
-					body := fmt.Sprintf(utils.UserAccountDoesNotExistReply.Body, userTwitterScreenName)
+					body := fmt.Sprintf(models.UserAccountDoesNotExistReply.Body, userTwitterScreenName)
 					_, responseBody, statusCode, err := twitterBot.ReplyToTweet(userTweetID, body)
 					if err != nil {
 						log.Errorf("unable to send UserAccountDoesNotExistReply to userTwitterID: %s, err: %v", userTwitterID, err)
@@ -104,7 +104,7 @@ func startTwitterBot(userService service.UserService, botLogService service.BotL
 					botLogRecord.Reply = body
 					botLogRecord.HttpResponse = responseBody
 					botLogRecord.HttpStatusCode = statusCode
-					botLogRecord.ReplyTypeCode = utils.UserAccountDoesNotExistReply.Code
+					botLogRecord.ReplyTypeCode = models.UserAccountDoesNotExistReply.Code
 
 					err = botLogService.Save(botLogRecord)
 					if err != nil {
@@ -119,7 +119,7 @@ func startTwitterBot(userService service.UserService, botLogService service.BotL
 					// send a reply that the user has not provided the google calendar consent
 					// send google calendar consent absent reply to the user
 					log.Warningf("user google calendar consent absent for userID: %d, sending UserGoogleCalendarConsentAbsentReply", user.ID)
-					body := fmt.Sprintf(utils.UserGoogleCalendarConsentAbsentReply.Body, userTwitterScreenName)
+					body := fmt.Sprintf(models.UserGoogleCalendarConsentAbsentReply.Body, userTwitterScreenName)
 					_, responseBody, statusCode, err := twitterBot.ReplyToTweet(userTweetID, body)
 					if err != nil {
 						log.Errorf("unable to send UserGoogleCalendarConsentAbsentReply to userID: %d, err: %v", user.ID, err)
@@ -129,7 +129,7 @@ func startTwitterBot(userService service.UserService, botLogService service.BotL
 					botLogRecord.Reply = body
 					botLogRecord.HttpResponse = responseBody
 					botLogRecord.HttpStatusCode = statusCode
-					botLogRecord.ReplyTypeCode = utils.UserGoogleCalendarConsentAbsentReply.Code
+					botLogRecord.ReplyTypeCode = models.UserGoogleCalendarConsentAbsentReply.Code
 
 					err = botLogService.Save(botLogRecord)
 					if err != nil {
@@ -154,7 +154,7 @@ func startTwitterBot(userService service.UserService, botLogService service.BotL
 
 					// send google calendar consent absent reply to the user
 					log.Warningf("user google calendar consent absent for userID: %d, sending UserGoogleCalendarConsentAbsentReply", user.ID)
-					body := fmt.Sprintf(utils.UserGoogleCalendarConsentAbsentReply.Body, userTwitterScreenName)
+					body := fmt.Sprintf(models.UserGoogleCalendarConsentAbsentReply.Body, userTwitterScreenName)
 					_, responseBody, statusCode, err := twitterBot.ReplyToTweet(userTweetID, body)
 					if err != nil {
 						log.Errorf("unable to send UserGoogleCalendarConsentAbsentReply to userID: %d, err: %v", user.ID, err)
@@ -164,7 +164,7 @@ func startTwitterBot(userService service.UserService, botLogService service.BotL
 					botLogRecord.Reply = body
 					botLogRecord.HttpResponse = responseBody
 					botLogRecord.HttpStatusCode = statusCode
-					botLogRecord.ReplyTypeCode = utils.UserGoogleCalendarConsentAbsentReply.Code
+					botLogRecord.ReplyTypeCode = models.UserGoogleCalendarConsentAbsentReply.Code
 
 					err = botLogService.Save(botLogRecord)
 					if err != nil {
@@ -215,7 +215,7 @@ func startTwitterBot(userService service.UserService, botLogService service.BotL
 					// send google calendar consent absent reply to the user
 					// send error reply to the user
 					log.Warningf("user google calendar consent absent for userID: %d, sending UserGoogleCalendarConsentAbsentReply", user.ID)
-					body := fmt.Sprintf(utils.UserGoogleCalendarConsentAbsentReply.Body, userTwitterScreenName)
+					body := fmt.Sprintf(models.UserGoogleCalendarConsentAbsentReply.Body, userTwitterScreenName)
 					_, responseBody, statusCode, err := twitterBot.ReplyToTweet(userTweetID, body)
 					if err != nil {
 						log.Errorf("unable to send UserGoogleCalendarConsentAbsentReply to userID: %d, err: %v", user.ID, err)
@@ -225,7 +225,7 @@ func startTwitterBot(userService service.UserService, botLogService service.BotL
 					botLogRecord.Reply = body
 					botLogRecord.HttpResponse = responseBody
 					botLogRecord.HttpStatusCode = statusCode
-					botLogRecord.ReplyTypeCode = utils.UserGoogleCalendarConsentAbsentReply.Code
+					botLogRecord.ReplyTypeCode = models.UserGoogleCalendarConsentAbsentReply.Code
 
 					err = botLogService.Save(botLogRecord)
 					if err != nil {
@@ -236,7 +236,7 @@ func startTwitterBot(userService service.UserService, botLogService service.BotL
 				}
 
 				log.Infof("google calendar event created for userID: %d, sending UserGoogleCalendarEventCreatedReply", user.ID)
-				body := fmt.Sprintf(utils.UserGoogleCalendarEventCreatedReply.Body, userTwitterScreenName, event.HtmlLink)
+				body := fmt.Sprintf(models.UserGoogleCalendarEventCreatedReply.Body, userTwitterScreenName, event.HtmlLink)
 				_, responseBody, statusCode, err := twitterBot.ReplyToTweet(userTweetID, body)
 
 				// convert the user tweet data into JSON for saving in db
@@ -247,7 +247,7 @@ func startTwitterBot(userService service.UserService, botLogService service.BotL
 				botLogRecord.UserParsedTweetData = string(userTweetJson)
 				botLogRecord.HttpResponse = responseBody
 				botLogRecord.HttpStatusCode = statusCode
-				botLogRecord.ReplyTypeCode = utils.UserGoogleCalendarEventCreatedReply.Code
+				botLogRecord.ReplyTypeCode = models.UserGoogleCalendarEventCreatedReply.Code
 
 				err = botLogService.Save(botLogRecord)
 				if err != nil {

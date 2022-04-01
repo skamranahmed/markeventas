@@ -27,5 +27,31 @@ func Migrate(db *gorm.DB) error {
 		log.Errorf("unable to migrate BotLog table, error: %v", err)
 		return err
 	}
+
+	log.Info("creating BotReplyType table")
+	err = db.AutoMigrate(models.BotReplyType{})
+	if err != nil {
+		log.Errorf("unable to migrate BotReplyType table, error: %v", err)
+		return err
+	}
+
+	err = SaveBotReplyTypes(db)
+	if err != nil {
+		log.Error(err)
+		return err
+	}
+
+	return nil
+}
+
+func SaveBotReplyTypes(db *gorm.DB) error {
+	for _, botReplyType := range models.BotReplyTypes {
+		toFind := models.BotReplyType{Code: botReplyType.Code}
+		err := db.Where(toFind).FirstOrCreate(&botReplyType).Error
+		if err != nil {
+			log.Errorf("unable to save botReplyType: %+v in db, err: %v", botReplyType, err)
+			return err
+		}
+	}
 	return nil
 }
