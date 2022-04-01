@@ -1,4 +1,4 @@
-name: Deploy to AWS ECR
+name: Deploy to AWS ECR and then to AWS EKS
 
 # this workflow will be triggered whenever there is a push to the 'master' branch
 on:
@@ -6,13 +6,20 @@ on:
     branches: [master]
 
 jobs:
-  build:
+
+  deploy:
     name: Build image
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout the code
         uses: actions/checkout@v2
+
+      - name: Install kubectl
+        uses: azure/setup-kubectl@v2.0
+        with:
+          version: 'v1.23.5' # https://storage.googleapis.com/kubernetes-release/release/stable.txt
+        id: install
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -31,6 +38,15 @@ jobs:
           ECR_REPOSITORY: twitter-space-gcal-event
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
+          docker push -a $ECR_REGISTRY/$ECR_REPOSITORY
+
+      - name: Deploy image to Amazon EKS
+        run: |
+          kubectl apply -f infra/k8s/production/deployment.yaml
+          kubectl apply -f infra/k8s/production/service.yaml
+          kubectl apply -f infra/k8s/production/issuer.yaml
+          kubectl apply -f infra/k8s/production/ingress.yaml
+
+
         

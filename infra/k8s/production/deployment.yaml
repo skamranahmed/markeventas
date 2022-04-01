@@ -14,7 +14,8 @@ spec:
     spec:
       containers:
         - name: twitter-space-gcal-event # name of the container
-          image: 796007131872.dkr.ecr.ap-south-1.amazonaws.com/twitter-space-gcal-event:d2f654bd962fd1ff75e7023ed612b44e7cc349a7
+          image: 796007131872.dkr.ecr.ap-south-1.amazonaws.com/twitter-space-gcal-event:latest # use the latest tag here, so that we don't have to manually change the tag for each deployment
+          imagePullPolicy: Always
           env:
             - name: ENVIRONMENT
               value: production
