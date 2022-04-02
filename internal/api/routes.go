@@ -43,20 +43,22 @@ func InitRoutes(db *gorm.DB) *gin.Engine {
 	// CORS middleware
 	router.Use(cors.Default())
 
-	router.GET("/api/login", handlers.userHandler.TwitterOAuthLogin)
-	router.POST("/api/twitter/callback", handlers.userHandler.HandleTwitterOAuthCallback)
-
 	// health route
-	router.GET("/api/health", func(c *gin.Context) {
+	router.GET("/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"health": "ok"})
 		return
 	})
 
-	authorized := router.Group("/api")
+	// no auth required
+	router.GET("/oauth/login", handlers.userHandler.TwitterOAuthLogin)
+	router.POST("/oauth/authorize", handlers.userHandler.HandleTwitterOAuthCallback)
+
+	// auth required
+	authorized := router.Group("/user")
 	authorized.Use(middlewares.AuthMiddleware(tokenMaker))
 	{
 		authorized.POST("/save/google-calendar/tokens", handlers.googleTokenHandler.SaveRefreshToken)
-		authorized.GET("/profile/me", handlers.userHandler.GetUserProfile)
+		authorized.GET("/profile", handlers.userHandler.GetUserProfile)
 	}
 
 	// run the twitter bot in background
