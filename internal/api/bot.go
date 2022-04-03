@@ -51,7 +51,7 @@ func startTwitterBot(userService service.UserService, botLogService service.BotL
 				userAccountExists := true
 
 				// grab the twitterID of the user who mentioned us in the tweet
-				userTwitterID := tweet.InReplyToUserIDStr
+				userTwitterID := tweet.User.IDStr
 
 				// grab the statusID
 				statusID := tweet.InReplyToStatusIDStr
@@ -59,8 +59,8 @@ func startTwitterBot(userService service.UserService, botLogService service.BotL
 				// latestTweetID - required for SinceID
 				userTweetID := tweet.ID
 
-				// userTwitterScreenName
-				userTwitterScreenName := tweet.InReplyToScreenName
+				// grab the twitterScreenName of the user who mentioned us in the tweet
+				userTwitterScreenName := tweet.User.ScreenName
 
 				// extract the user tweet text
 				userTweetText := tweet.FullText
@@ -178,7 +178,7 @@ func startTwitterBot(userService service.UserService, botLogService service.BotL
 				// _ = "Kamran's Space | Jan 28, 2022 | 6:43 PM | IST"
 				userTweetData, err := utils.ParseTweetText(userTweetText)
 				if err != nil {
-					// send reply to the user saying that the format of the tweet is incorrect
+					// TODO: send reply to the user saying that the format of the tweet is incorrect
 					log.Error(err)
 					continue
 				}

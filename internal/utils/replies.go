@@ -11,10 +11,10 @@ const (
 func (r ReplyType) Body() string {
 	switch r {
 	case UserAccountDoesNotExist:
-		return `@%s Hey, looks like you do not have not an account with us yet. You can create one by visiting here: `
+		return `@%s Looks like you do not have not an account with us yet. You can create one by visiting here: `
 
 	case UserGoogleCalendarConsentAbsent:
-		return `@%s Hey, looks like you have not provided the access to your Google Calendar yet. You can do it by visiting here: `
+		return `@%s Looks like you have not provided the access to your Google Calendar yet. You can do it by visiting here: `
 
 	case UserGoogleCalendarEventCreated:
 		return `@%s The event has been created in your calendar. Here's the link: %s`
