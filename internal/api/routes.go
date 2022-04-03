@@ -20,9 +20,9 @@ var (
 )
 
 type repos struct {
-	userRepo   repo.UserRepository
-	googleCalendarTokenRepo  repo.GoogleCalendarTokenRepository
-	botLogRepo repo.BotLogRepository
+	userRepo                repo.UserRepository
+	googleCalendarTokenRepo repo.GoogleCalendarTokenRepository
+	botLogRepo              repo.BotLogRepository
 }
 
 type services struct {
@@ -61,8 +61,11 @@ func InitRoutes(db *gorm.DB) *gin.Engine {
 		authorized.GET("/profile", handlers.userHandler.GetUserProfile)
 	}
 
-	// run the twitter bot in background
-	go startTwitterBot(services.userService, services.botLogService)
+	// for now run the twitter bot only on local setup
+	if config.Environment.IsLocal() {
+		// run the twitter bot in background
+		go startTwitterBot(services.userService, services.botLogService)
+	}
 
 	return router
 }

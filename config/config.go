@@ -41,6 +41,9 @@ var (
 	TwitterBotAccessToken       string
 	TwitterBotAccessTokenSecret string
 
+	// Environment
+	Environment AppEnvironment
+
 	// slice of all app environments except the `local`` env
 	AppEnvironemnts = []AppEnvironment{
 		AppEnvironmentStaging,
@@ -74,11 +77,11 @@ func init() {
 }
 
 func SetConfigFromViper() {
-	currentHostEnvironment := getCurrentHostEnvironment()
-	log.Infof("🚀 Current Host Environment: %s\n", currentHostEnvironment)
+	Environment = getCurrentHostEnvironment()
+	log.Infof("🚀 Current Host Environment: %s\n", Environment)
 
 	// if env is local, we set the env variables using the config file
-	if currentHostEnvironment.IsLocal() {
+	if Environment.IsLocal() {
 		setEnvironmentVarsFromConfig()
 	}
 
