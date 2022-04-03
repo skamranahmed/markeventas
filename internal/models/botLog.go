@@ -12,5 +12,5 @@ type BotLog struct {
 	Reply                 string `gorm:"type:text;default:null" json:"reply"`
 	HttpResponse          string `gorm:"type:text;default:null" json:"http_response"`
 	HttpStatusCode        int    `json:"http_status_code"`
-	ReplyTypeCode         int    `json:"reply_type_code"`
+	ReplyTypeCode         int    `gorm:"default:null" json:"reply_type_code"`
 }

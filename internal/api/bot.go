@@ -140,7 +140,7 @@ func startTwitterBot(userService service.UserService, botLogService service.BotL
 				}
 
 				// checking the google calendar consent
-				// the code argument would be empty as be would use the refresh token of the user saved in the db
+				// the `code` argument would be empty as be would use the refresh token of the user saved in the db
 				googleService, err := userService.NewGoogleService(user.ID, "")
 				if err != nil {
 					log.Warningf("unable to init google service for the userID: %d, err: %v", user.ID, err)
