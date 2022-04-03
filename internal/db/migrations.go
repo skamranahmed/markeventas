@@ -14,8 +14,8 @@ func Migrate(db *gorm.DB) error {
 		return err
 	}
 
-	log.Info("creating Token table")
-	err = db.AutoMigrate(models.Token{})
+	log.Info("creating GoogleCalendarToken table")
+	err = db.AutoMigrate(models.GoogleCalendarToken{})
 	if err != nil {
 		log.Errorf("unable to migrate Token table, error: %v", err)
 		return err

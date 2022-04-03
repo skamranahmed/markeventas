@@ -18,13 +18,13 @@ import (
 )
 
 type googleService struct {
-	tokenRepo    repo.TokenRepository
-	oAuth2Config *oauth2.Config
-	client       *http.Client
-	calendar     *calendar.Service
+	calendarTokenRepo repo.GoogleCalendarTokenRepository
+	oAuth2Config      *oauth2.Config
+	client            *http.Client
+	calendar          *calendar.Service
 }
 
-func NewGoogleService(userID uint, code string, tokenRepo repo.TokenRepository) (GoogleService, error) {
+func NewGoogleService(userID uint, code string, googleCalendarTokenRepo repo.GoogleCalendarTokenRepository) (GoogleService, error) {
 	ctx := context.Background()
 	clientSecret := []byte(config.GoogleAppClientSecret)
 	oAuth2Config, err := google.ConfigFromJSON(clientSecret, calendar.CalendarEventsScope)
@@ -34,7 +34,7 @@ func NewGoogleService(userID uint, code string, tokenRepo repo.TokenRepository) 
 	}
 
 	var service googleService
-	service.tokenRepo = tokenRepo
+	service.calendarTokenRepo = googleCalendarTokenRepo
 	service.oAuth2Config = oAuth2Config
 
 	var googleOAuth2Token *oauth2.Token
@@ -83,8 +83,8 @@ func (g *googleService) GetUserTokenFromWeb(userID uint, code string) (*oauth2.T
 	return token, nil
 }
 
-func (g *googleService) GetUserTokenFromDB(userID uint) (*oauth2.Token, *models.Token, error) {
-	token, err := g.tokenRepo.GetUserToken(userID)
+func (g *googleService) GetUserTokenFromDB(userID uint) (*oauth2.Token, *models.GoogleCalendarToken, error) {
+	token, err := g.calendarTokenRepo.GetUserToken(userID)
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			log.Infof("google token for userID: %d, not found in DB", userID)
@@ -110,14 +110,14 @@ func (g *googleService) SaveUserToken(googleOAuth2Token *oauth2.Token, userID ui
 	if err != nil {
 		// if no existing token found, then create a new token record
 		if err == gorm.ErrRecordNotFound {
-			newTokenRecord := &models.Token{
+			newTokenRecord := &models.GoogleCalendarToken{
 				UserID:       userID,
 				AccessToken:  googleOAuth2Token.AccessToken,
 				RefreshToken: googleOAuth2Token.RefreshToken,
 				ExpiresAt:    googleOAuth2Token.Expiry,
 			}
 			log.Infof("google token not found in DB for userID: %d | creating a new token record: %+v", userID, newTokenRecord)
-			err := g.tokenRepo.Create(newTokenRecord)
+			err := g.calendarTokenRepo.Create(newTokenRecord)
 			if err != nil {
 				log.Errorf("unable to create google token record in db: %+v, for userID: %d, error: %v", newTokenRecord, userID, err)
 				return err
@@ -136,7 +136,7 @@ func (g *googleService) SaveUserToken(googleOAuth2Token *oauth2.Token, userID ui
 	existingTokenRecord.RefreshToken = googleOAuth2Token.RefreshToken
 	existingTokenRecord.ExpiresAt = googleOAuth2Token.Expiry
 
-	err = g.tokenRepo.Save(existingTokenRecord)
+	err = g.calendarTokenRepo.Save(existingTokenRecord)
 	if err != nil {
 		log.Errorf("unable to update google token record in db: %+v, for userID: %d, error: %v", existingTokenRecord, userID, err)
 		return err

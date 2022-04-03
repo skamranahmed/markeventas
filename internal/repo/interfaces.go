@@ -11,12 +11,14 @@ type UserRepository interface {
 	FindByTwitterID(twitterID string) (*models.User, error)
 }
 
-type TokenRepository interface {
-	Create(u *models.Token) error
-	GetUserToken(userID uint) (*models.Token, error)
-	Save(u *models.Token) error
+// GoogleCalendarTokenRepository
+type GoogleCalendarTokenRepository interface {
+	Create(u *models.GoogleCalendarToken) error
+	GetUserToken(userID uint) (*models.GoogleCalendarToken, error)
+	Save(u *models.GoogleCalendarToken) error
 }
 
+// BotLogRepository
 type BotLogRepository interface {
 	Create(botLog *models.BotLog) (*models.BotLog, error)
 	Save(b *models.BotLog) error

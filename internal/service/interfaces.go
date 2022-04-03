@@ -16,7 +16,7 @@ type UserService interface {
 	GetUserDetailsFromTwitter(token *oauth1.Token) (*twitter.User, error)
 	DoesUserAlreadyExist(twitterID string) (bool, *models.User, error)
 	NewGoogleService(userID uint, code string) (GoogleService, error)
-	SaveGoogleToken(u *models.Token) error
+	SaveGoogleToken(u *models.GoogleCalendarToken) error
 	FindByTwitterID(twitterID string) (*models.User, error)
 }
 

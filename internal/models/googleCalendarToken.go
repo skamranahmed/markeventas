@@ -6,8 +6,8 @@ import (
 	"gorm.io/gorm"
 )
 
-// Token : represents the schema of `tokens` table
-type Token struct {
+// GoogleCalendarToken : represents the schema of `google_calendar_tokens` table
+type GoogleCalendarToken struct {
 	gorm.Model
 	UserID       uint      `gorm:"uniqueIndex;not null" json:"user_id"`
 	AccessToken  string    `gorm:"type:text;not null" json:"access_token"`

@@ -21,7 +21,7 @@ var (
 
 type repos struct {
 	userRepo   repo.UserRepository
-	tokenRepo  repo.TokenRepository
+	googleCalendarTokenRepo  repo.GoogleCalendarTokenRepository
 	botLogRepo repo.BotLogRepository
 }
 
@@ -84,15 +84,15 @@ func (r *repos) setDependencies(db *gorm.DB) {
 	userRepo := repo.NewUserRepository(db)
 	r.userRepo = userRepo
 
-	tokenRepo := repo.NewTokenRepository(db)
-	r.tokenRepo = tokenRepo
+	googleCalendarTokenRepo := repo.NewGoogleCalendarTokenRepository(db)
+	r.googleCalendarTokenRepo = googleCalendarTokenRepo
 
 	botLogRepo := repo.NewBotLogRepository(db)
 	r.botLogRepo = botLogRepo
 }
 
 func (s *services) setDependencies(repos *repos) {
-	userService := service.NewUserService(repos.userRepo, repos.tokenRepo, tokenMaker)
+	userService := service.NewUserService(repos.userRepo, repos.googleCalendarTokenRepo, tokenMaker)
 	s.userService = userService
 
 	botLogService := service.NewBotLogService(repos.botLogRepo)

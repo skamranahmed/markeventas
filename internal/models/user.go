@@ -12,5 +12,5 @@ type User struct {
 	IsGcalOauthTokenActive bool   `gorm:"not null;default:false" json:"is_gcal_oauth_token_active"` // to maintain the status of google calendar oauth token
 
 	// has one relationship
-	GoogleCalendarToken Token
+	GoogleCalendarToken GoogleCalendarToken
 }

@@ -16,7 +16,7 @@ import (
 )
 
 // NewUserService : returns a userService struct that implements the UserService interface
-func NewUserService(userRepo repo.UserRepository, tokenRepo repo.TokenRepository, tokenMaker token.Maker) UserService {
+func NewUserService(userRepo repo.UserRepository, googleCalendarTokenRepo repo.GoogleCalendarTokenRepository, tokenMaker token.Maker) UserService {
 	twitterOAuthClient := twitterClient.NewTwitterOAuthClient(
 		config.TwitterLoginAppApiKey,
 		config.TwitterLoginAppApiKeySecret,
@@ -24,22 +24,22 @@ func NewUserService(userRepo repo.UserRepository, tokenRepo repo.TokenRepository
 	)
 
 	return &userService{
-		userRepo:           userRepo,
-		tokenRepo:          tokenRepo,
-		tokenMaker:         tokenMaker,
-		twitterOAuthClient: twitterOAuthClient,
+		userRepo:                userRepo,
+		googleCalendarTokenRepo: googleCalendarTokenRepo,
+		tokenMaker:              tokenMaker,
+		twitterOAuthClient:      twitterOAuthClient,
 	}
 }
 
 type userService struct {
-	userRepo           repo.UserRepository
-	tokenRepo          repo.TokenRepository
-	tokenMaker         token.Maker
-	twitterOAuthClient twitterClient.TwitterOAuthClient
+	userRepo                repo.UserRepository
+	googleCalendarTokenRepo repo.GoogleCalendarTokenRepository
+	tokenMaker              token.Maker
+	twitterOAuthClient      twitterClient.TwitterOAuthClient
 }
 
 func (us *userService) NewGoogleService(userID uint, code string) (GoogleService, error) {
-	googleService, err := NewGoogleService(userID, code, us.tokenRepo)
+	googleService, err := NewGoogleService(userID, code, us.googleCalendarTokenRepo)
 	if err != nil {
 		log.Errorf("unable to init google service for userID: %d, error: %v", userID, err)
 		return nil, err
@@ -59,8 +59,8 @@ func (us *userService) Create(u *models.User) error {
 	return us.userRepo.Create(u)
 }
 
-func (us *userService) SaveGoogleToken(u *models.Token) error {
-	return us.tokenRepo.Save(u)
+func (us *userService) SaveGoogleToken(u *models.GoogleCalendarToken) error {
+	return us.googleCalendarTokenRepo.Save(u)
 }
 
 func (us *userService) CreateToken(userID uint, twitterID string) (string, error) {
