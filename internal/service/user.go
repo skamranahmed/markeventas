@@ -23,6 +23,8 @@ func NewUserService(userRepo repo.UserRepository, googleCalendarTokenRepo repo.G
 		config.TwitterLoginAppCallbackUrl,
 	)
 
+	log.Infof("Twitter Callback URL: %s", config.TwitterLoginAppCallbackUrl)
+
 	return &userService{
 		userRepo:                userRepo,
 		googleCalendarTokenRepo: googleCalendarTokenRepo,
