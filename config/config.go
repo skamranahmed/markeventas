@@ -34,6 +34,7 @@ var (
 	// Twitter Gcal Event Login App Credentials
 	TwitterLoginAppApiKey       string
 	TwitterLoginAppApiKeySecret string
+	TwitterLoginAppCallbackUrl  string
 
 	// Twitter Gcal Event Bot Credentials
 	TwitterBotApiKey            string
@@ -105,6 +106,7 @@ func SetConfigFromViper() {
 	// Twitter Gcal Event Login App Credentials
 	TwitterLoginAppApiKey = os.Getenv("TWITTER_LOGIN_APP_API_KEY")
 	TwitterLoginAppApiKeySecret = os.Getenv("TWITTER_LOGIN_APP_API_KEY_SECRET")
+	TwitterLoginAppCallbackUrl = os.Getenv("TWITTER_LOGIN_APP_CALLBACK_URL")
 
 	// Twitter Gcal Event Bot Credentials
 	TwitterBotApiKey = os.Getenv("TWITTER_BOT_API_KEY")
@@ -163,8 +165,10 @@ func setEnvironmentVarsFromConfig() {
 	// Twitter Gcal Event Login App Credentials
 	twitterLoginAppApiKey := viper.GetString("TWITTER_LOGIN_APP_API_KEY")
 	twitterLoginAppApiKeySecret := viper.GetString("TWITTER_LOGIN_APP_API_KEY_SECRET")
+	twitterLoginAppCallbackUrl := viper.GetString("TWITTER_LOGIN_APP_CALLBACK_URL")
 	os.Setenv("TWITTER_LOGIN_APP_API_KEY", twitterLoginAppApiKey)
 	os.Setenv("TWITTER_LOGIN_APP_API_KEY_SECRET", twitterLoginAppApiKeySecret)
+	os.Setenv("TWITTER_LOGIN_APP_CALLBACK_URL", twitterLoginAppCallbackUrl)
 
 	// Twitter Gcal Event Bot Credentials
 	twitterBotApiKey := viper.GetString("TWITTER_BOT_API_KEY")

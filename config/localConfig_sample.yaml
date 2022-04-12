@@ -1,6 +1,7 @@
 # Twitter Create Gcal Event Login App Credentials #
 TWITTER_LOGIN_APP_API_KEY: ""
 TWITTER_LOGIN_APP_API_KEY_SECRET: ""
+TWITTER_LOGIN_APP_CALLBACK_URL: ""
 
 # Twitter Create Gcal Event Bot Credentials #
 TWITTER_CREATE_GCAL_EVENT_BOT_API_KEY: ""

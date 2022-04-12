@@ -20,7 +20,7 @@ func NewUserService(userRepo repo.UserRepository, googleCalendarTokenRepo repo.G
 	twitterOAuthClient := twitterClient.NewTwitterOAuthClient(
 		config.TwitterLoginAppApiKey,
 		config.TwitterLoginAppApiKeySecret,
-		"http://localhost:8080/twitter/callback", // TODO: add this in env variable, coz this will be different based on the env
+		config.TwitterLoginAppCallbackUrl,
 	)
 
 	return &userService{
