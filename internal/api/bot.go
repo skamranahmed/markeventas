@@ -175,7 +175,7 @@ func startTwitterBot(userService service.UserService, botLogService service.BotL
 				}
 
 				// parse the user tweet text
-				// _ = "Kamran's Space | Jan 28, 2022 | 6:43 PM | IST"
+				// "@markeventas Kamran's Space | Jan 28, 2022 | 6:43 PM | IST"
 				userTweetData, err := utils.ParseTweetText(userTweetText)
 				if err != nil {
 					// TODO: send reply to the user saying that the format of the tweet is incorrect
