@@ -59,7 +59,7 @@ jobs:
   notify:
     name: Notify on Slack
     runs-on: ubuntu-latest
-    needs: [build] # run this workflow only when the "deploy" workflow succeeds
+    needs: [deploy] # run this workflow only when the "deploy" workflow succeeds
 
     steps:
       - name: send notification on slack
