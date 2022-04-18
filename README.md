@@ -7,6 +7,7 @@
 You just need to reply `@markeventas <event_name> | <date> | <time> | <timezone>` to any tweet.
 
 ## Demo
+(In progress, currently working on the frontend)
 
 ## Why I built this?
 ### 😩 The problem
