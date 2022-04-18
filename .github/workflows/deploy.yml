@@ -63,6 +63,7 @@ jobs:
 
     steps:
       - name: send notification on slack
+        uses: abinoda/slack-action@master
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
         with:
