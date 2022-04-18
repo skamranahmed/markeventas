@@ -55,3 +55,71 @@ jobs:
           kubectl apply -f infra/k8s/production/service.yaml
           kubectl apply -f infra/k8s/production/issuer.yaml
           kubectl apply -f infra/k8s/production/ingress.yaml
+
+  notify:
+    name: Notify on Slack
+    runs-on: ubuntu-latest
+    needs: [build] # run this workflow only when the "deploy" workflow succeeds
+
+    steps:
+      - name: send notification on slack
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+        with:
+          args: |
+            {
+              "channel":"${{ secrets.SLACK_CI_CD_CHANNEL_ID }}",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Deployed to EKS*! :grin:"
+                  }
+                },
+                {
+                  "type": "divider"
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Project*:\n${{ github.event.repository.name }}"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*When*:\n$(TZ='Asia/Kolkata' date +'%m/%d/%Y %T')"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Branch*:\n${GITHUB_REF_NAME}"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Author*:\n${{ github.event.pull_request.user.login }}"
+                    }
+                  ],
+                  "accessory": {
+                    "type": "image",
+                    "image_url": "https://media.giphy.com/media/cXblnKXr2BQOaYnTni/giphy.gif",
+                    "alt_text": "Happy Gif"
+                  }
+                },
+                {
+                  "type": "actions",
+                  "elements": [
+                    {
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "View Workflow"
+                      },
+                      "url": "https://github.com/skamranahmed/markeventas/runs/${{ github.run_id }}"
+                    }
+                  ]
+                }
+              ]
+            }
+
+        if: success()
