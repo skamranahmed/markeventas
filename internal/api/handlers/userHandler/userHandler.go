@@ -105,6 +105,7 @@ func (uh *userHandler) HandleTwitterOAuthCallback(c *gin.Context) {
 			AccessToken: userToken,
 			TwitterID:   user.TwitterID,
 			ScreenName:  user.TwitterScreenName,
+			IsGoogleOauthTokenActive: user.IsGcalOauthTokenActive,
 		}
 
 		c.JSON(http.StatusOK, resp)
